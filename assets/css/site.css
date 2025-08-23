@@ -1,0 +1,24 @@
+:root { --fg:#111; --bg:#fff; --muted:#6b7280; --brand:#2563eb; }
+*{box-sizing:border-box} html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,Segoe UI,Roboto,Arial}
+a{color:var(--brand);text-decoration:none}
+.container{max-width:980px;margin:0 auto;padding:24px}
+.nav{border-bottom:1px solid #eee;background:#fff;position:sticky;top:0}
+.nav .container{display:flex;align-items:center;gap:20px}
+.brand{font-weight:700}
+.nav a{padding:14px 8px;display:inline-block;color:#111}
+.nav a.active{color:var(--brand)}
+.hero{padding:64px 0}
+.hero h1{margin:0 0 8px}
+.muted{color:var(--muted)}
+.footer{border-top:1px solid #eee;margin-top:48px}
+.btn{display:inline-block;padding:10px 14px;border:1px solid var(--brand);border-radius:10px}
+.btn.primary{background:var(--brand);color:#fff}
+.card{border:1px solid #eee;border-radius:14px;padding:18px}
+form label{display:block;margin:14px 0 6px}
+input[type=text],input[type=tel],input[type=email],textarea{
+  width:100%;padding:10px;border:1px solid #ddd;border-radius:10px
+}
+input[type=checkbox]{transform:scale(1.1);margin-right:8px}
+.notice{padding:12px;border-radius:10px;margin-top:12px}
+.notice.ok{background:#ecfdf5;border:1px solid #10b981}
+.notice.err{background:#fef2f2;border:1px solid #ef4444}
