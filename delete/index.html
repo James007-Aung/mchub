@@ -62,7 +62,7 @@
       appId: "1:21663216482:web:bbcda649b6b22c4b4a723b",
       measurementId: "G-NFX4NZGFHM"
     };
-    const CALLABLE_NAME = "deleteAccountAndData";
+    const CALLABLE_NAME = "deleteAccountAndDataWeb";
     const FUNCTIONS_REGION = "asia-southeast1";
     // ---------------------------------------------
 
@@ -115,17 +115,20 @@
     try {
       const callDelete = functions.httpsCallable(CALLABLE_NAME);
       const res = await callDelete({ source: "web" });
+      const data = (res && res.data) || {};
+      console.log("[deleteAccountAndDataWeb] response:", data);
 
-      // Log full payload so we can see steps from the function
-      console.log("[deleteAccountAndData] response:", res && res.data);
-
-      // If the call didn't throw, it succeeded. Show success and sign out.
-      ok("Account deleted. You will be signed out.");
-      setTimeout(() => auth.signOut().then(() => location.href = "/"), 1500);
+      if (data.ok === true) {
+        ok("Account deleted. You will be signed out.");
+        setTimeout(() => auth.signOut().then(() => (location.href = "/")), 1500);
+      } else {
+        const code = data.errorCode || "unknown";
+        const msg  = data.errorMessage || "See console for details";
+        err(`Deletion failed: ${code} — ${msg}`);
+      }
     } catch (e) {
-      console.error("[deleteAccountAndData] error:", e.code, e.message, e);
+      console.error("[deleteAccountAndDataWeb] error:", e.code, e.message, e);
       err(`Deletion failed: ${e.code || "error"} — ${e.message || "See console"}`);
-
     }
   };
 </script>
