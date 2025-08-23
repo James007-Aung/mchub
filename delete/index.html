@@ -110,24 +110,20 @@
     };
 
     // Debugging surface the error in page UI
-    document.getElementById('deleteBtn').onclick = async () => {
+     document.getElementById('deleteBtn').onclick = async () => {
     try {
-      const callDelete = functions.httpsCallable('deleteAccountAndData');
+      const callDelete = functions.httpsCallable(CALLABLE_NAME);
       const res = await callDelete({ source: "web" });
-      console.log("[callable response]", res);
-      // Treat any successful response as success (your callable returns {ok:true}).
-      // If it ever changes, this still shows the console payload.
-      document.getElementById('okBox').textContent =
-        "Account deleted. You will be signed out.";
-      document.getElementById('okBox').style.display = 'block';
-      document.getElementById('errBox').style.display = 'none';
-      setTimeout(()=> firebase.auth().signOut().then(()=>location.href="/"), 1500);
+
+      // Log full payload so we can see steps from the function
+      console.log("[deleteAccountAndData] response:", res && res.data);
+
+      // If the call didn't throw, it succeeded. Show success and sign out.
+      ok("Account deleted. You will be signed out.");
+      setTimeout(() => auth.signOut().then(() => location.href = "/"), 1500);
     } catch (e) {
       console.error("[deleteAccountAndData] error:", e.code, e.message, e);
-      document.getElementById('errBox').textContent =
-        `Deletion failed: ${e.code || 'error'} — ${e.message || 'See console'}`;
-      document.getElementById('errBox').style.display = 'block';
-      document.getElementById('okBox').style.display = 'none';
+      err(`Deletion failed: ${e.code || "error"} — ${e.message || "See console"}`);
     }
   };
 </script>
