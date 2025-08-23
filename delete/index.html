@@ -135,6 +135,7 @@
         auth.signOut().catch((err) => {
           console.warn("signOut() warning:", err && err.code, err && err.message);
         });
+
       } else {
         const code = data.errorCode || "unknown";
         const msg  = data.errorMessage || "See console for details";
