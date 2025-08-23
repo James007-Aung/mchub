@@ -113,7 +113,7 @@
 
     // Debugging surface the error in page UI
 
-     document.getElementById('deleteBtn').onclick = async () => {
+    document.getElementById('deleteBtn').onclick = async () => {
     try {
       const callDelete = functions.httpsCallable(CALLABLE_NAME);
       const res = await callDelete({ source: "web" });
@@ -122,7 +122,19 @@
 
       if (data.ok === true) {
         ok("Account deleted. You will be signed out.");
-        setTimeout(() => auth.signOut().then(() => (location.href = "/")), 1500);
+
+        const fallback = setTimeout(() => (location.href = "/"), 2500);
+
+        auth.onAuthStateChanged((u) => {
+          if (!u) {
+            clearTimeout(fallback);
+            location.href = "/";
+          }
+        });
+
+        auth.signOut().catch((err) => {
+          console.warn("signOut() warning:", err && err.code, err && err.message);
+        });
       } else {
         const code = data.errorCode || "unknown";
         const msg  = data.errorMessage || "See console for details";
