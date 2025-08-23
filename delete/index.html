@@ -4,45 +4,120 @@
     <link rel="stylesheet" href="/assets/css/site.css">
 </head><body>
 <div class="nav"><div class="container"><a class="brand" href="/">McHub</a><nav>
-    <a href="/" data-path="/">Home</a><a href="/about.html" data-path="/about.html">About</a>
+    <a href="/" data-path="/">Home</a>
+    <a href="/about.html" data-path="/about.html">About</a>
     <a href="/store.html" data-path="/store.html">App Store</a>
     <a href="/privacy.html" data-path="/privacy.html">User Policy</a>
     <a href="/delete/" data-path="/delete">Delete Account</a>
 </nav></div></div>
 
 <main class="container">
-    <h1>Request Account Deletion</h1>
-    <p class="muted">If you signed up with phone/Facebook in the app, you can also delete from inside the app. This web form creates a deletion ticket for our team.</p>
+    <h1>Delete my account</h1>
+    <p class="muted">Verify your phone number used in the app, then confirm deletion.</p>
 
-    <form id="delForm">
-        <label>Full name</label>
-        <input type="text" name="name" required>
+    <!-- Step 1: phone -->
+    <div class="card" id="stepPhone">
+        <h3>Step 1 — Verify phone</h3>
+        <label>Phone number (E.164, e.g. +66912345678)</label>
+        <input id="phone" type="tel" placeholder="+66123456789" />
+        <div id="recaptcha-container" style="margin:12px 0"></div>
+        <p><button class="btn primary" id="sendCodeBtn">Send code</button></p>
+    </div>
 
-        <label>Phone number (used in app)</label>
-        <input type="tel" name="phone" required>
+    <!-- Step 2: code -->
+    <div class="card" id="stepCode" style="display:none">
+        <h3>Step 2 — Enter the 6-digit code</h3>
+        <input id="code" type="text" inputmode="numeric" maxlength="6" />
+        <p><button class="btn primary" id="verifyBtn">Verify</button></p>
+    </div>
 
-        <label>App UID (optional)</label>
-        <input type="text" name="uid" placeholder="If known">
-
-        <label>Email (optional)</label>
-        <input type="email" name="email" placeholder="For status update">
-
-        <label>Reason (optional)</label>
-        <textarea name="reason" rows="4" placeholder="Tell us anything we should know"></textarea>
-
-        <label><input type="checkbox" name="confirm" required> I confirm I want my McHub account deleted.</label>
-
-        <p><button class="btn primary" type="submit">Submit deletion request</button></p>
-
+    <!-- Step 3: confirm delete -->
+    <div class="card" id="stepConfirm" style="display:none">
+        <h3>Step 3 — Confirm deletion</h3>
+        <label><input type="checkbox" id="confirmChk"> I understand this will delete my account.</label>
+        <p><button class="btn primary" id="deleteBtn" disabled>Delete my account now</button></p>
         <div id="okBox" class="notice ok" style="display:none"></div>
         <div id="errBox" class="notice err" style="display:none"></div>
-    </form>
+    </div>
 </main>
 
 <div class="footer"><div class="container"><p class="muted">© <span id="y"></span> McHub.</p>
     <script>document.getElementById('y').textContent=new Date().getFullYear();</script></div></div>
+
 <script src="/assets/js/site.js"></script>
+
+<!-- Firebase v9 compat CDN -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
+
 <script>
-    document.getElementById('delForm').addEventListener('submit', submitDeleteRequest);
+    // ---- Your project config (public & safe) ----
+    const firebaseConfig = {
+      apiKey: "AIzaSyBQUdEeRlC1zO6XlO-cy5FV2UL_-WXIEhQ",
+      authDomain: "mchub-a0276.firebaseapp.com",
+      projectId: "mchub-a0276",
+      storageBucket: "mchub-a0276.firebasestorage.app",
+      messagingSenderId: "21663216482",
+      appId: "1:21663216482:web:bbcda649b6b22c4b4a723b",
+      measurementId: "G-NFX4NZGFHM"
+    };
+    const CALLABLE_NAME = "deleteAccountAndData";
+    const FUNCTIONS_REGION = "asia-southeast1";
+    // ---------------------------------------------
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const functions = firebase.functions(undefined, FUNCTIONS_REGION);
+
+    // Invisible reCAPTCHA for phone auth
+    let confirmationResult = null;
+    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier(
+      'recaptcha-container', { size: 'invisible' }
+    );
+
+    // helpers
+    const stepPhone = document.getElementById('stepPhone');
+    const stepCode = document.getElementById('stepCode');
+    const stepConfirm = document.getElementById('stepConfirm');
+    const okBox = document.getElementById('okBox');
+    const errBox = document.getElementById('errBox');
+    const show = el => el.style.display='block';
+    const hide = el => el.style.display='none';
+    const ok = m => { okBox.textContent=m; okBox.style.display='block'; errBox.style.display='none'; };
+    const err = m => { errBox.textContent=m; errBox.style.display='block'; okBox.style.display='none'; };
+
+    // Step 1: send OTP
+    document.getElementById('sendCodeBtn').onclick = async () => {
+      try {
+        const phone = document.getElementById('phone').value.trim();
+        confirmationResult = await auth.signInWithPhoneNumber(phone, window.recaptchaVerifier);
+        hide(stepPhone); show(stepCode);
+      } catch (e) { err("Failed to send code. Check number and try again."); }
+    };
+
+    // Step 2: verify OTP
+    document.getElementById('verifyBtn').onclick = async () => {
+      try {
+        const code = document.getElementById('code').value.trim();
+        await confirmationResult.confirm(code);
+        hide(stepCode); show(stepConfirm);
+        document.getElementById('confirmChk').onchange = (e)=>{
+          document.getElementById('deleteBtn').disabled = !e.target.checked;
+        };
+      } catch (e) { err("Invalid code. Try again."); }
+    };
+
+    // Step 3: call callable to delete (same backend as app)
+    document.getElementById('deleteBtn').onclick = async () => {
+      try {
+        const callDelete = functions.httpsCallable(CALLABLE_NAME);
+        const res = await callDelete({ source: "web" });
+        if (res && res.data && res.data.ok) {
+          ok("Account deleted. You will be signed out.");
+          setTimeout(()=> auth.signOut().then(()=>location.href="/"), 1500);
+        } else { err("Deletion failed. Please try again later."); }
+      } catch (e) { err("Deletion failed. Please try again later."); }
+    };
 </script>
 </body></html>

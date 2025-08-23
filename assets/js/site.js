@@ -9,6 +9,7 @@
   });
 })();
 
+
 // Delete form submit (Phase 1 -> Cloud Function endpoint)
 // Replace YOUR_FIREBASE_PROJECT_ID below before going live.
 async function submitDeleteRequest(e) {
