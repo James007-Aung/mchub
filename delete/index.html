@@ -1,0 +1,48 @@
+<!doctype html><html lang="en"><head>
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Delete Account – McHub</title>
+    <link rel="stylesheet" href="/assets/css/site.css">
+</head><body>
+<div class="nav"><div class="container"><a class="brand" href="/">McHub</a><nav>
+    <a href="/" data-path="/">Home</a><a href="/about.html" data-path="/about.html">About</a>
+    <a href="/store.html" data-path="/store.html">App Store</a>
+    <a href="/privacy.html" data-path="/privacy.html">User Policy</a>
+    <a href="/delete/" data-path="/delete">Delete Account</a>
+</nav></div></div>
+
+<main class="container">
+    <h1>Request Account Deletion</h1>
+    <p class="muted">If you signed up with phone/Facebook in the app, you can also delete from inside the app. This web form creates a deletion ticket for our team.</p>
+
+    <form id="delForm">
+        <label>Full name</label>
+        <input type="text" name="name" required>
+
+        <label>Phone number (used in app)</label>
+        <input type="tel" name="phone" required>
+
+        <label>App UID (optional)</label>
+        <input type="text" name="uid" placeholder="If known">
+
+        <label>Email (optional)</label>
+        <input type="email" name="email" placeholder="For status update">
+
+        <label>Reason (optional)</label>
+        <textarea name="reason" rows="4" placeholder="Tell us anything we should know"></textarea>
+
+        <label><input type="checkbox" name="confirm" required> I confirm I want my McHub account deleted.</label>
+
+        <p><button class="btn primary" type="submit">Submit deletion request</button></p>
+
+        <div id="okBox" class="notice ok" style="display:none"></div>
+        <div id="errBox" class="notice err" style="display:none"></div>
+    </form>
+</main>
+
+<div class="footer"><div class="container"><p class="muted">© <span id="y"></span> McHub.</p>
+    <script>document.getElementById('y').textContent=new Date().getFullYear();</script></div></div>
+<script src="/assets/js/site.js"></script>
+<script>
+    document.getElementById('delForm').addEventListener('submit', submitDeleteRequest);
+</script>
+</body></html>
