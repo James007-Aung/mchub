@@ -110,6 +110,7 @@
     };
 
     // Debugging surface the error in page UI
+
      document.getElementById('deleteBtn').onclick = async () => {
     try {
       const callDelete = functions.httpsCallable(CALLABLE_NAME);
@@ -124,6 +125,7 @@
     } catch (e) {
       console.error("[deleteAccountAndData] error:", e.code, e.message, e);
       err(`Deletion failed: ${e.code || "error"} — ${e.message || "See console"}`);
+
     }
   };
 </script>
