@@ -66,9 +66,11 @@
     const FUNCTIONS_REGION = "asia-southeast1";
     // ---------------------------------------------
 
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const functions = firebase.functions(undefined, FUNCTIONS_REGION);
+    // Initialize and bind SDKs to this app instance (compat)
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = app.auth();
+    const functions = app.functions(FUNCTIONS_REGION);
+
 
     // Invisible reCAPTCHA for phone auth
     let confirmationResult = null;
@@ -101,7 +103,7 @@
       try {
         const code = document.getElementById('code').value.trim();
         await confirmationResult.confirm(code);
-        console.log("[auth] signed in as", firebase.auth().currentUser && firebase.auth().currentUser.uid);
+        console.log("[auth] signed in as", auth.currentUser && auth.currentUser.uid);
         hide(stepCode); show(stepConfirm);
         document.getElementById('confirmChk').onchange = (e)=>{
           document.getElementById('deleteBtn').disabled = !e.target.checked;
