@@ -194,34 +194,20 @@
   };
 
   // Step 3: confirm deletion
-  document.getElementById("deleteBtn").onclick = async () => {
+  document.getElementById('deleteBtn').onclick = async () => {
     try {
-      const callDelete = functions.httpsCallable(CALLABLE_NAME);
+      const callDelete = functions.httpsCallable('deleteAccountAndDataWeb');
       const res = await callDelete({ source: "web" });
       const data = (res && res.data) || {};
       console.log("[deleteAccountAndDataWeb] response:", data);
 
       if (data.ok === true) {
         ok("Account deleted. You will be signed out.");
-        const fallback = setTimeout(() => (location.href = "/"), 2500);
-
-        auth.onAuthStateChanged((u) => {
-          if (!u) {
-            clearTimeout(fallback);
-            location.href = "/";
-          }
-        });
-
-        auth.signOut().catch((err) => {
-          console.warn(
-            "signOut() warning:",
-            err && err.code,
-            err && err.message
-          );
-        });
+        try { await auth.signOut(); } catch (e) { console.warn("signOut warn:", e); }
+        setTimeout(() => (location.href = "/"), 1200);
       } else {
         const code = data.errorCode || "unknown";
-        const msg = data.errorMessage || "See console for details";
+        const msg  = data.errorMessage || "See console for details";
         err(`Deletion failed: ${code} — ${msg}`);
       }
     } catch (e) {
