@@ -212,6 +212,7 @@
       } finally {
         btn.disabled = false;
       }
+
     };
 
     // ===== Step 3: Confirm deletion (callable) =====
@@ -236,7 +237,9 @@
         console.error("[deleteAccountAndDataWeb] error:", e?.code, e?.message, e);
         err(`Deletion failed: ${e?.code || "error"} — ${e?.message || "See console"}`);
         btn.disabled = false;
-      }
-    };
+
+    }
+  };
+  
 </script>
 </body></html>
