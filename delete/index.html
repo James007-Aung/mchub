@@ -269,37 +269,40 @@
   confirmChk.onchange = (e) => { deleteBtn.disabled = !e.target.checked; };
 
   // ===== Step 3: Confirm deletion (callable) =====
-  const CALLABLE_NAME   = "deleteAccountAndDataWeb";
-  const FUNCTIONS_REGION = "asia-southeast1";
-  const app       = firebase.app(); // already initialized above in your file
-  const auth      = app.auth();
-  const functions = app.functions(FUNCTIONS_REGION);
-  auth.useDeviceLanguage();
+  // NOTE: We do NOT re-declare CALLABLE_NAME / FUNCTIONS_REGION / app / auth / functions here.
+  // They are already defined earlier in your file.
 
-  deleteBtn.onclick = async () => {
-    setBtn(deleteBtn, true, "Deleting…");
-    errBox.style.display = "none"; okBox.style.display = "none";
+document.getElementById("deleteBtn").onclick = async () => {
+  const btn = document.getElementById("deleteBtn");
+  // loading state (if you kept setBtn helper; otherwise just disable)
+  if (typeof setBtn === "function") { setBtn(btn, true, "Deleting…"); } else { btn.disabled = true; }
+  // hide previous notices
+  const errBox = document.getElementById("errBox");
+  const okBox  = document.getElementById("okBox");
+  if (errBox) errBox.style.display = "none";
+  if (okBox)  okBox.style.display  = "none";
 
-    try {
-      const callDelete = functions.httpsCallable(CALLABLE_NAME);
-      const res  = await callDelete({ source: "web" });
-      const data = res?.data || {};
-      console.log("[deleteAccountAndDataWeb] response:", data);
+  try {
+    const callDelete = functions.httpsCallable(CALLABLE_NAME);
+    const res  = await callDelete({ source: "web" });
+    const data = res?.data || {};
+    console.log("[deleteAccountAndDataWeb] response:", data);
 
-      if (data.ok === true) {
-        ok("Account deleted. Signing you out…");
-        try { await auth.signOut(); } catch (e) { console.warn("[signOut] warn:", e); }
-        setTimeout(() => (location.href = "/"), 1200);
-      } else {
-        err(`Deletion failed: ${data.errorCode || "unknown"} — ${data.errorMessage || "See console for details"}`);
-        setBtn(deleteBtn, false);
-      }
-    } catch (e) {
-      console.error("[deleteAccountAndDataWeb] error:", e?.code, e?.message, e);
-      err(`Deletion failed: ${e?.code || "error"} — ${e?.message || "See console"}`);
-      setBtn(deleteBtn, false);
+    if (data.ok === true) {
+      if (okBox) { okBox.textContent = "Account deleted. Signing you out…"; okBox.style.display = "block"; }
+      try { await auth.signOut(); } catch (e) { console.warn("[signOut] warn:", e); }
+      setTimeout(() => (location.href = "/"), 1200);
+    } else {
+      const msg = `${data.errorCode || "unknown"} — ${data.errorMessage || "See console for details"}`;
+      if (errBox) { errBox.textContent = `Deletion failed: ${msg}`; errBox.style.display = "block"; }
+      if (typeof setBtn === "function") { setBtn(btn, false); } else { btn.disabled = false; }
     }
-  };
+  } catch (e) {
+    console.error("[deleteAccountAndDataWeb] error:", e?.code, e?.message, e);
+    if (errBox) { errBox.textContent = `Deletion failed: ${e?.code || "error"} — ${e?.message || "See console"}`; errBox.style.display = "block"; }
+    if (typeof setBtn === "function") { setBtn(btn, false); } else { btn.disabled = false; }
+  }
+};
   
 </script>
 </body></html>
