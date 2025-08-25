@@ -123,184 +123,96 @@
   }
 
   // ===== reCAPTCHA lifecycle (fresh each attempt) =====
-  let confirmationResult = null;
-  let recaptchaVerifier  = null;
-  let recaptchaWidgetId  = null;
+let confirmationResult = null;
+let recaptchaVerifier  = null;
+let recaptchaWidgetId  = null;
 
-  // keep visible checkbox/puzzle per your decision
-  const RECAPTCHA_VISIBLE = true;
+// Keep visible once rendered, but DO NOT render until phone is valid + button clicked
+const RECAPTCHA_VISIBLE = true;
 
-  function clearRecaptchaDOM() {
-    const host = document.getElementById("recaptcha-container");
-    if (!host) return;
-    host.innerHTML = "";
-  }
+function clearRecaptchaDOM() {
+  const host = document.getElementById("recaptcha-container");
+  if (host) host.innerHTML = "";
+}
 
-  async function destroyRecaptcha() {
-    try { await recaptchaVerifier?.clear?.(); } catch (_) {}
-    recaptchaVerifier = null;
-    recaptchaWidgetId = null;
-    clearRecaptchaDOM();
-    try { window.grecaptcha?.reset?.(); } catch (_) {}
-  }
+async function destroyRecaptcha() {
+  try { await recaptchaVerifier?.clear?.(); } catch (_) {}
+  recaptchaVerifier = null;
+  recaptchaWidgetId = null;
+  clearRecaptchaDOM();
+  try { window.grecaptcha?.reset?.(); } catch (_) {}
+}
 
-  async function createRecaptcha() {
-    await destroyRecaptcha();
-    recaptchaVerifier = new firebase.auth.RecaptchaVerifier("recaptcha-container", {
-      size: RECAPTCHA_VISIBLE ? "normal" : "invisible",
-      callback: () => { /* solved */ },
-      "expired-callback": async () => {
-        console.warn("[recaptcha] expired-callback");
-        err("CAPTCHA expired. Please check the box again.");
-        await destroyRecaptcha();
-        await createRecaptcha();
-      }
-    });
-    recaptchaWidgetId = await recaptchaVerifier.render();
-    console.log("[recaptcha] rendered widget id:", recaptchaWidgetId);
-    return recaptchaVerifier;
-  }
-
-  async function verifyRecaptchaOrThrow() {
-    try {
-      const token = await recaptchaVerifier.verify();
-      console.log("[recaptcha] got token length:", (token || "").length);
-      return true;
-    } catch (e) {
-      console.error("[recaptcha] verify failed:", e?.code, e?.message);
-      throw e;
+async function createRecaptcha() {
+  // Render only when we really need it (after phone is valid + click)
+  await destroyRecaptcha();
+  recaptchaVerifier = new firebase.auth.RecaptchaVerifier("recaptcha-container", {
+    size: RECAPTCHA_VISIBLE ? "normal" : "invisible",
+    callback: () => { /* solved */ },
+    "expired-callback": async () => {
+      console.warn("[recaptcha] expired");
+      await destroyRecaptcha(); // leave box cleared; user can click again to re-render
     }
-  }
-
-  function friendlyAuthError(code, fallback = "Failed. Please try again.") {
-    switch (code) {
-      case "auth/invalid-phone-number":       return "Invalid phone number format (+E.164).";
-      case "auth/too-many-requests":          return "Too many attempts. Try later or switch number/network.";
-      case "auth/quota-exceeded":             return "SMS quota exceeded. Use a test number while developing.";
-      case "auth/captcha-check-failed":
-      case "auth/invalid-app-credential":
-      case "auth/app-not-authorized":         return "CAPTCHA/app verification failed. Refresh and try again.";
-      case "auth/invalid-verification-code":  return "Incorrect verification code.";
-      default: return fallback;
-    }
-  }
-
-  // init first view
-  gotoStep(1);
-  createRecaptcha();
-
-  // ===== Step 1: Send OTP =====
-  sendBtn.onclick = async () => {
-    const phone = phoneInput.value.trim();
-
-    if (!phone || !phone.startsWith("+")) {
-      err("Please enter your phone number in +E.164 format (e.g., +66912345678).");
-      phoneInput.focus();
-      return;
-    }
-
-    setBtn(sendBtn, true, "Sending…");
-    errBox.style.display = "none"; okBox.style.display = "none";
-
-    try {
-      // fresh verifier every attempt
-      await createRecaptcha();
-
-      // user must tick the visible box (or puzzle) — verify will wait for it
-      ok("Please check the CAPTCHA box if prompted…");
-      await verifyRecaptchaOrThrow();
-
-      console.log("[auth] sending OTP for", phone);
-      confirmationResult = await auth.signInWithPhoneNumber(phone, recaptchaVerifier);
-
-      ok("Code sent! Please enter the 6-digit code.");
-      gotoStep(2);
-    } catch (e) {
-      console.error("[sendCodeBtn] error:", e?.code, e?.message, e);
-      err(friendlyAuthError(e?.code, "Failed to send code. Check number and try again."));
-      await destroyRecaptcha();
-      await createRecaptcha();
-    } finally {
-      setBtn(sendBtn, false);
-    }
-  };
-
-  // allow Enter in phone to trigger send
-  phoneInput.addEventListener("keydown", (ev) => {
-    if (ev.key === "Enter") sendBtn.click();
   });
+  recaptchaWidgetId = await recaptchaVerifier.render();
+  console.log("[recaptcha] rendered id:", recaptchaWidgetId);
+  return recaptchaVerifier;
+}
 
-  // ===== Step 2: Verify OTP =====
-  verifyBtn.onclick = async () => {
-    const code = codeInput.value.trim();
+async function verifyRecaptchaOrThrow() {
+  // Will wait until the visible checkbox/puzzle is solved
+  await recaptchaVerifier.verify();
+  return true;
+}
 
-    if (code.length < 6) {
-      err("Please enter the 6-digit verification code.");
-      codeInput.focus();
-      return;
-    }
+function friendlyAuthError(code, fallback = "Failed. Please try again.") {
+  switch (code) {
+    case "auth/invalid-phone-number":   return "Invalid phone number format (+E.164).";
+    case "auth/too-many-requests":      return "Too many attempts. Try later or switch network/number.";
+    case "auth/quota-exceeded":         return "SMS quota exceeded. Use a test number during development.";
+    case "auth/captcha-check-failed":
+    case "auth/invalid-app-credential":
+    case "auth/app-not-authorized":     return "CAPTCHA/app verification failed. Refresh and try again.";
+    case "auth/invalid-verification-code": return "Incorrect verification code.";
+    default: return fallback;
+  }
+}
 
-    setBtn(verifyBtn, true, "Verifying…");
-    errBox.style.display = "none";
+// ===== Step 1: Send OTP =====
+document.getElementById("sendCodeBtn").onclick = async () => {
+  const btn   = document.getElementById("sendCodeBtn");
+  const phone = document.getElementById("phone").value.trim();
 
-    try {
-      await confirmationResult.confirm(code);
-      console.log("[auth] signed in as", firebase.auth().currentUser?.uid);
+  // 1) Require valid phone BEFORE showing CAPTCHA
+  if (!phone || !phone.startsWith("+")) {
+    err("Please enter your phone number in +E.164 format.");
+    return;
+  }
 
-      ok("Phone verified. You can confirm deletion below.");
-      gotoStep(3);
-    } catch (e) {
-      console.error("[verifyBtn] error:", e?.code, e?.message, e);
-      err(friendlyAuthError(e?.code, "Invalid code. Try again."));
-      await destroyRecaptcha();
-      await createRecaptcha();
-      gotoStep(1); // guide them to request a new code if needed
-    } finally {
-      setBtn(verifyBtn, false);
-    }
-  };
-
-  // allow Enter in code to trigger verify
-  codeInput.addEventListener("keydown", (ev) => {
-    if (ev.key === "Enter") verifyBtn.click();
-  });
-
-  // enable delete button only when checkbox ticked
-  confirmChk.onchange = (e) => { deleteBtn.disabled = !e.target.checked; };
-
-  // ===== Step 3: Confirm deletion (callable) =====
-  // NOTE: We do NOT re-declare CALLABLE_NAME / FUNCTIONS_REGION / app / auth / functions here.
-  // They are already defined earlier in your file.
-
-document.getElementById("deleteBtn").onclick = async () => {
-  const btn = document.getElementById("deleteBtn");
-  // loading state (if you kept setBtn helper; otherwise just disable)
-  if (typeof setBtn === "function") { setBtn(btn, true, "Deleting…"); } else { btn.disabled = true; }
-  // hide previous notices
-  const errBox = document.getElementById("errBox");
-  const okBox  = document.getElementById("okBox");
-  if (errBox) errBox.style.display = "none";
-  if (okBox)  okBox.style.display  = "none";
-
+  btn.disabled = true;
   try {
-    const callDelete = functions.httpsCallable(CALLABLE_NAME);
-    const res  = await callDelete({ source: "web" });
-    const data = res?.data || {};
-    console.log("[deleteAccountAndDataWeb] response:", data);
-
-    if (data.ok === true) {
-      if (okBox) { okBox.textContent = "Account deleted. Signing you out…"; okBox.style.display = "block"; }
-      try { await auth.signOut(); } catch (e) { console.warn("[signOut] warn:", e); }
-      setTimeout(() => (location.href = "/"), 1200);
-    } else {
-      const msg = `${data.errorCode || "unknown"} — ${data.errorMessage || "See console for details"}`;
-      if (errBox) { errBox.textContent = `Deletion failed: ${msg}`; errBox.style.display = "block"; }
-      if (typeof setBtn === "function") { setBtn(btn, false); } else { btn.disabled = false; }
+    // 2) Create & show CAPTCHA ONLY NOW
+    if (!recaptchaVerifier) {
+      await createRecaptcha();
+      ok("Please complete the CAPTCHA, then click 'Send code' again.");
+      return; // user will solve & click again
     }
+
+    // 3) Verify user solved it
+    await verifyRecaptchaOrThrow();
+
+    console.log("[auth] sending OTP for", phone);
+    confirmationResult = await auth.signInWithPhoneNumber(phone, recaptchaVerifier);
+
+    hide(stepPhone);
+    show(stepCode);
+    console.log("[auth] OTP sent (check Identity Toolkit logs for SendVerificationCode)");
   } catch (e) {
-    console.error("[deleteAccountAndDataWeb] error:", e?.code, e?.message, e);
-    if (errBox) { errBox.textContent = `Deletion failed: ${e?.code || "error"} — ${e?.message || "See console"}`; errBox.style.display = "block"; }
-    if (typeof setBtn === "function") { setBtn(btn, false); } else { btn.disabled = false; }
+    console.error("[sendCodeBtn] error:", e?.code, e?.message, e);
+    err(friendlyAuthError(e?.code, "Failed to send code. Check number and try again."));
+    await destroyRecaptcha(); // clear widget; next click re-renders
+  } finally {
+    btn.disabled = false;
   }
 };
   
