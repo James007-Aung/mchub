@@ -2,6 +2,12 @@
     <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Delete Account – McHub</title>
     <link rel="stylesheet" href="/assets/css/site.css">
+    <!-- Reserve space for visible reCAPTCHA -->
+    <style>
+        #recaptcha-container {
+          min-height: 78px;
+        }
+    </style>
 </head><body>
 <div class="nav"><div class="container"><a class="brand" href="/">McHub</a><nav>
     <a href="/" data-path="/">Home</a>
@@ -89,7 +95,7 @@
     let recaptchaWidgetId  = null;
 
     // Set this to true temporarily to *see* the widget while debugging
-    const RECAPTCHA_VISIBLE = false;
+    const RECAPTCHA_VISIBLE = true;
 
     function clearRecaptchaDOM() {
       const host = document.getElementById("recaptcha-container");
