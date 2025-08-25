@@ -62,158 +62,181 @@
       appId: "1:21663216482:web:bbcda649b6b22c4b4a723b",
       measurementId: "G-NFX4NZGFHM"
     };
-    const CALLABLE_NAME = "deleteAccountAndDataWeb";
+    const CALLABLE_NAME   = "deleteAccountAndDataWeb";
     const FUNCTIONS_REGION = "asia-southeast1";
     // ---------------------------------------------
 
-    // Initialize and bind SDKs to this app instance (compat)
-    const app = firebase.initializeApp(firebaseConfig);
-    const auth = app.auth();
+    // Initialize (compat)
+    const app       = firebase.initializeApp(firebaseConfig);
+    const auth      = app.auth();
     const functions = app.functions(FUNCTIONS_REGION);
-
-    // Use the device/browser language for SMS whenever possible. Without this
-    // call the OTP messages may default to en-US. See
-    // https://firebase.google.com/docs/auth/web/phone-auth#phone_auth_request_language
     auth.useDeviceLanguage();
 
+    // ===== UI helpers =====
+    const stepPhone   = document.getElementById("stepPhone");
+    const stepCode    = document.getElementById("stepCode");
+    const stepConfirm = document.getElementById("stepConfirm");
+    const okBox  = document.getElementById("okBox");
+    const errBox = document.getElementById("errBox");
+    const show = (el) => (el.style.display = "block");
+    const hide = (el) => (el.style.display = "none");
+    const ok  = (m) => { okBox.textContent = m; okBox.style.display = "block"; errBox.style.display = "none"; };
+    const err = (m) => { errBox.textContent = m; errBox.style.display = "block"; okBox.style.display = "none"; };
 
-    // === PATCH: robust reCAPTCHA handling (invisible) ===
-    // Create the verifier and render to capture the widgetId.
+    // ===== reCAPTCHA lifecycle (fresh each attempt) =====
     let confirmationResult = null;
-  window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier(
-    "recaptcha-container",
-    {
-      size: "invisible",
-      callback: function () { /* solved automatically for invisible */ },
-      "expired-callback": function () {
-        // We'll call resetRecaptcha() on error paths below
+    let recaptchaVerifier  = null;
+    let recaptchaWidgetId  = null;
+
+    // Set this to true temporarily to *see* the widget while debugging
+    const RECAPTCHA_VISIBLE = false;
+
+    function clearRecaptchaDOM() {
+      const host = document.getElementById("recaptcha-container");
+      if (!host) return;
+      // Remove any previous iframe/widget DOM completely
+      host.innerHTML = "";
+    }
+
+    async function destroyRecaptcha() {
+      try { await recaptchaVerifier?.clear?.(); } catch (_) {}
+      recaptchaVerifier = null;
+      recaptchaWidgetId = null;
+      clearRecaptchaDOM();
+      // Also try to reset grecaptcha if present (best-effort)
+      try { window.grecaptcha?.reset?.(); } catch (_) {}
+    }
+
+    async function createRecaptcha() {
+      await destroyRecaptcha();
+      recaptchaVerifier = new firebase.auth.RecaptchaVerifier(
+        "recaptcha-container",
+        {
+          size: RECAPTCHA_VISIBLE ? "normal" : "invisible",
+          callback: () => { /* solved (invisible auto) */ },
+          "expired-callback": async () => {
+            console.warn("[recaptcha] expired-callback");
+            await destroyRecaptcha();
+          }
+        }
+      );
+      // Render once; capture widget id for optional manual resets
+      recaptchaWidgetId = await recaptchaVerifier.render();
+      return recaptchaVerifier;
+    }
+
+    async function verifyRecaptchaOrThrow() {
+      // For invisible, verify() will trigger challenge as needed
+      try {
+        await recaptchaVerifier.verify();
+        return true;
+      } catch (e) {
+        console.error("[recaptcha] verify failed:", e?.code, e?.message);
+        throw e;
       }
     }
-  );
 
-  // Store the widget id so we can truly reset later
-  window.recaptchaWidgetId = null;
-  window.recaptchaVerifier.render().then(function (id) {
-    window.recaptchaWidgetId = id;
-  });
-
-  function resetRecaptcha() {
-    try {
-      if (window.grecaptcha &&
-          typeof window.grecaptcha.reset === "function" &&
-          window.recaptchaWidgetId !== null) {
-        window.grecaptcha.reset(window.recaptchaWidgetId);
+    function friendlyAuthError(code, fallback = "Failed. Please try again.") {
+      switch (code) {
+        case "auth/invalid-phone-number":   return "Invalid phone number format (+E.164).";
+        case "auth/too-many-requests":      return "Too many attempts. Try later or switch network/number.";
+        case "auth/quota-exceeded":         return "SMS quota exceeded. Use a test number during development.";
+        case "auth/captcha-check-failed":
+        case "auth/invalid-app-credential":
+        case "auth/app-not-authorized":     return "reCAPTCHA/app verification failed. Refresh and try again.";
+        case "auth/invalid-verification-code": return "Incorrect verification code.";
+        default: return fallback;
       }
-    } catch (_) { /* not fatal */ }
-  }
-  // === end PATCH ===
-  // helpers
-  const stepPhone = document.getElementById("stepPhone");
-  const stepCode = document.getElementById("stepCode");
-  const stepConfirm = document.getElementById("stepConfirm");
-  const okBox = document.getElementById("okBox");
-  const errBox = document.getElementById("errBox");
-  const show = (el) => (el.style.display = "block");
-  const hide = (el) => (el.style.display = "none");
-  const ok = (m) => {
-    okBox.textContent = m;
-    okBox.style.display = "block";
-    errBox.style.display = "none";
-  };
-  const err = (m) => {
-    errBox.textContent = m;
-    errBox.style.display = "block";
-    okBox.style.display = "none";
-  };
+    }
 
-  // Step 1: send OTP
-  document.getElementById("sendCodeBtn").onclick = async () => {
-    try {
-      // Ensure the reCAPTCHA widget is rendered
-      try { await window.recaptchaVerifier.render(); } catch (_) {}
-
+    // ===== Step 1: Send OTP =====
+    document.getElementById("sendCodeBtn").onclick = async () => {
+      const btn   = document.getElementById("sendCodeBtn");
       const phone = document.getElementById("phone").value.trim();
-      if (!phone || phone.charAt(0) !== "+") {
+
+      if (!phone || !phone.startsWith("+")) {
         err("Please enter your phone number in +E.164 format.");
-        resetRecaptcha();
         return;
       }
 
-      // Trigger the invisible challenge explicitly
-      try { await window.recaptchaVerifier.verify(); } catch (e) {
-        // If verify fails (e.g., challenge error), surface and reset
-        console.error("[sendCodeBtn] verify failed:", e && e.code, e && e.message);
-        err("reCAPTCHA challenge failed. Please try again.");
-        resetRecaptcha();
-        return;
+      btn.disabled = true;
+      try {
+        // Fresh verifier on every attempt (critical to avoid silent no-ops)
+        await createRecaptcha();
+
+        // For visible mode debugging, ensure render occurred; for invisible, verify performs the challenge
+        await verifyRecaptchaOrThrow();
+
+        console.log("[auth] sending OTP for", phone);
+        confirmationResult = await auth.signInWithPhoneNumber(phone, recaptchaVerifier);
+
+        hide(stepPhone);
+        show(stepCode);
+        console.log("[auth] OTP sent (check Identity Toolkit logs for SendVerificationCode)");
+      } catch (e) {
+        console.error("[sendCodeBtn] error:", e?.code, e?.message, e);
+        err(friendlyAuthError(e?.code, "Failed to send code. Check number and try again."));
+        // Hard reset recaptcha for next attempt
+        await destroyRecaptcha();
+      } finally {
+        btn.disabled = false;
       }
+    };
 
-      confirmationResult = await auth
-        .signInWithPhoneNumber(phone, window.recaptchaVerifier);
-
-      hide(stepPhone);
-      show(stepCode);
-    } catch (e) {
-      console.error("[sendCodeBtn] failed:", e && e.code, e && e.message);
-      // Helpful messages for common cases
-      let msg = "Failed to send code. Check the phone number and try again.";
-      if (e && e.code === "auth/invalid-phone-number") msg = "Invalid phone number format.";
-      if (e && e.code === "auth/too-many-requests") msg = "Too many requests. Try again later.";
-      err(msg);
-      resetRecaptcha();
-    }
-  };
-
-  // Step 2: verify OTP
-  document.getElementById("verifyBtn").onclick = async () => {
-    try {
+    // ===== Step 2: Verify OTP =====
+    document.getElementById("verifyBtn").onclick = async () => {
+      const btn  = document.getElementById("verifyBtn");
       const code = document.getElementById("code").value.trim();
-      if (!code || code.length < 6) {
+
+      if (code.length < 6) {
         err("Please enter the 6-digit verification code.");
         return;
       }
 
-      await confirmationResult.confirm(code);
-      console.log("[auth] signed in as", auth.currentUser && auth.currentUser.uid);
+      btn.disabled = true;
+      try {
+        await confirmationResult.confirm(code);
+        console.log("[auth] signed in as", auth.currentUser?.uid);
 
-      hide(stepCode);
-      show(stepConfirm);
+        hide(stepCode);
+        show(stepConfirm);
 
-      document.getElementById("confirmChk").onchange = (e) => {
-        document.getElementById("deleteBtn").disabled = !e.target.checked;
-      };
-    } catch (e) {
-      console.error("[verifyBtn] failed:", e && e.code, e && e.message);
-      let msg = "Invalid code. Try again.";
-      if (e && e.code === "auth/invalid-verification-code") {
-        msg = "Incorrect verification code.";
+        document.getElementById("confirmChk").onchange = (e) => {
+          document.getElementById("deleteBtn").disabled = !e.target.checked;
+        };
+      } catch (e) {
+        console.error("[verifyBtn] error:", e?.code, e?.message, e);
+        err(friendlyAuthError(e?.code, "Invalid code. Try again."));
+        // After a bad code, keep the session, but ensure next Send Code creates a fresh verifier
+        await destroyRecaptcha();
+      } finally {
+        btn.disabled = false;
       }
-      err(msg);
-      resetRecaptcha();
-    }
-  };
+    };
 
-  // Step 3: confirm deletion
-  document.getElementById('deleteBtn').onclick = async () => {
-    try {
-      const callDelete = functions.httpsCallable('deleteAccountAndDataWeb');
-      const res = await callDelete({ source: "web" });
-      const data = (res && res.data) || {};
-      console.log("[deleteAccountAndDataWeb] response:", data);
+    // ===== Step 3: Confirm deletion (callable) =====
+    document.getElementById("deleteBtn").onclick = async () => {
+      const btn = document.getElementById("deleteBtn");
+      btn.disabled = true;
+      try {
+        const callDelete = functions.httpsCallable(CALLABLE_NAME);
+        const res  = await callDelete({ source: "web" });
+        const data = res?.data || {};
+        console.log("[deleteAccountAndDataWeb] response:", data);
 
-      if (data.ok === true) {
-        ok("Account deleted. You will be signed out.");
-        try { await auth.signOut(); } catch (e) { console.warn("signOut warn:", e); }
-        setTimeout(() => (location.href = "/"), 1200);
-      } else {
-        const code = data.errorCode || "unknown";
-        const msg  = data.errorMessage || "See console for details";
-        err(`Deletion failed: ${code} — ${msg}`);
+        if (data.ok === true) {
+          ok("Account deleted. You will be signed out.");
+          try { await auth.signOut(); } catch (e) { console.warn("[signOut] warn:", e); }
+          setTimeout(() => (location.href = "/"), 1200);
+        } else {
+          err(`Deletion failed: ${data.errorCode || "unknown"} — ${data.errorMessage || "See console for details"}`);
+          btn.disabled = false;
+        }
+      } catch (e) {
+        console.error("[deleteAccountAndDataWeb] error:", e?.code, e?.message, e);
+        err(`Deletion failed: ${e?.code || "error"} — ${e?.message || "See console"}`);
+        btn.disabled = false;
       }
-    } catch (e) {
-      console.error("[deleteAccountAndDataWeb] error:", e.code, e.message, e);
-      err(`Deletion failed: ${e.code || "error"} — ${e.message || "See console"}`);
-    }
-  };
+    };
 </script>
 </body></html>
