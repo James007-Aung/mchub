@@ -9,16 +9,13 @@
 <body>
 <p>Payment was cancelled. Taking you back to Telegram…</p>
 <script>
-    // --- Telegram redirect for PayPal Cancel ---
     const qp  = new URLSearchParams(location.search);
     const oid = qp.get('oid') || '';
-    const BOT = "mchub_forms_bot"; // <-- your real bot username (no @)
+    const BOT = "thai_forms_helper_bot"; // <-- same bot username (NO @)
     const deeplink = `https://t.me/${BOT}?start=ppcancel_${encodeURIComponent(oid)}`;
     location.replace(deeplink);
 </script>
 <p>If you are not redirected, <a id="lnk">open Telegram manually</a>.</p>
-<script>
-    document.getElementById('lnk').href = deeplink;
-</script>
+<script>document.getElementById('lnk').href = (typeof deeplink !== 'undefined') ? deeplink : '#';</script>
 </body>
 </html>

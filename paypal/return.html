@@ -1,18 +1,24 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Payment Cancelled</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Redirecting…</title>
 </head>
 <body>
+<p>Redirecting you back to Telegram…</p>
 <script>
-    // --- Telegram redirect for PayPal Cancel ---
-    const qp  = new URLSearchParams(location.search);
-    const oid = qp.get('oid') || '';
-    const BOT = "thai_forms_helper_bot"; // <-- REPLACE with your real bot username (NO @)
-    const deeplink = `https://t.me/${BOT}?start=ppcancel_${encodeURIComponent(oid)}`;
+    // PayPal adds ?token=...   (PayPal order id)
+    // Your bot added ?oid=...  (your internal order id)
+    const qp   = new URLSearchParams(location.search);
+    const tok  = qp.get('token') || '';
+    const oid  = qp.get('oid')   || '';
+    const BOT  = "thai_forms_helper_bot"; // <-- your real bot username (NO @)
+    const deeplink = `https://t.me/${BOT}?start=ppcap_${encodeURIComponent(tok)}_${encodeURIComponent(oid)}`;
     location.replace(deeplink);
 </script>
+<p>If you are not redirected, <a id="lnk">open Telegram manually</a>.</p>
+<script>document.getElementById('lnk').href = (typeof deeplink !== 'undefined') ? deeplink : '#';</script>
 </body>
 </html>
