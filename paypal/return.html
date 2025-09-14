@@ -1,6 +1,13 @@
 <!doctype html>
-<meta charset="utf-8">
-<title>Redirecting…</title>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Redirecting…</title>
+</head>
+<body>
+<p>Redirecting you back to Telegram…</p>
 <script>
     const qp   = new URLSearchParams(location.search);
     const tok  = qp.get('token');   // PayPal adds this (order id)
@@ -8,5 +15,7 @@
     const deeplink = `https://t.me/YOUR_BOT_USERNAME?start=ppcap_${encodeURIComponent(tok)}_${encodeURIComponent(oid)}`;
     location.replace(deeplink);
 </script>
-<p>If you’re not redirected automatically, <a id="lnk">open Telegram</a>.</p>
+<p>If you are not redirected, <a id="lnk">open Telegram manually</a>.</p>
 <script>document.getElementById('lnk').href = deeplink;</script>
+</body>
+</html>
