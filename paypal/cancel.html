@@ -1,0 +1,14 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Payment cancelled</title>
+<script>
+    // PayPal appends ?token=... and we already add ?oid=... from the bot
+    const qp  = new URLSearchParams(location.search);
+    const oid = qp.get('oid') || ''; // our local order id
+    // Replace YOUR_BOT_USERNAME with your bot’s username
+    const deeplink = `https://t.me/YOUR_BOT_USERNAME?start=ppcancel_${encodeURIComponent(oid)}`;
+    // Auto-redirect to Telegram (fallback link below)
+    location.replace(deeplink);
+</script>
+<p>If you’re not redirected automatically, <a id="lnk">open Telegram</a>.</p>
+<script>document.getElementById('lnk').href = deeplink;</script>

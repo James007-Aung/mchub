@@ -1,0 +1,12 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Redirecting…</title>
+<script>
+    const qp   = new URLSearchParams(location.search);
+    const tok  = qp.get('token');   // PayPal adds this (order id)
+    const oid  = qp.get('oid');     // from our bot
+    const deeplink = `https://t.me/YOUR_BOT_USERNAME?start=ppcap_${encodeURIComponent(tok)}_${encodeURIComponent(oid)}`;
+    location.replace(deeplink);
+</script>
+<p>If you’re not redirected automatically, <a id="lnk">open Telegram</a>.</p>
+<script>document.getElementById('lnk').href = deeplink;</script>
