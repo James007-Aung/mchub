@@ -1,21 +1,18 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta name="robots" content="noindex,nofollow" />
-    <title>Redirecting…</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payment Cancelled</title>
 </head>
 <body>
-<p>Redirecting you back to Telegram…</p>
 <script>
-    const qp   = new URLSearchParams(location.search);
-    const tok  = qp.get('token');   // PayPal adds this (order id)
-    const oid  = qp.get('oid');     // from our bot
-    const deeplink = `https://t.me/YOUR_BOT_USERNAME?start=ppcap_${encodeURIComponent(tok)}_${encodeURIComponent(oid)}`;
+    // --- Telegram redirect for PayPal Cancel ---
+    const qp  = new URLSearchParams(location.search);
+    const oid = qp.get('oid') || '';
+    const BOT = "thai_forms_helper_bot"; // <-- REPLACE with your real bot username (NO @)
+    const deeplink = `https://t.me/${BOT}?start=ppcancel_${encodeURIComponent(oid)}`;
     location.replace(deeplink);
 </script>
-<p>If you are not redirected, <a id="lnk">open Telegram manually</a>.</p>
-<script>document.getElementById('lnk').href = deeplink;</script>
 </body>
 </html>
