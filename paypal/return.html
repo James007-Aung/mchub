@@ -9,63 +9,43 @@
         body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 24px; }
         .btn { display:inline-block; padding:14px 18px; border-radius:8px; background:#229ED9; color:#fff; text-decoration:none; font-weight:600; }
         .hint { color:#444; margin-top:12px; }
-        #manual { display:none; margin-top:16px; }
     </style>
 </head>
 <body>
-<h1 style="margin:0 0 8px 0;">Redirecting you back to Telegram…</h1>
-<p class="hint">If Telegram doesn’t open automatically, tap the button below.</p>
+<h1 style="margin:0 0 8px 0;">Returning to Telegram…</h1>
+<p class="hint">If Telegram doesn’t open automatically, tap the button below. If nothing happens, close this tab and switch back to Telegram manually.</p>
 
-<div id="manual">
-    <a id="lnk" class="btn" href="#" rel="noopener">Open in Telegram</a>
-    <p class="hint">If nothing happens, switch back to Telegram manually.</p>
-</div>
+<p><a id="lnk" class="btn" href="#" rel="noopener">Open in Telegram</a></p>
 
 <script>
-    // Query params provided at runtime:
-    //   PayPal adds ?token=<paypal_order_id>
-    //   Your bot appended ?oid=<your_order_id> when creating the order
     const qp   = new URLSearchParams(location.search);
     const tok  = qp.get('token') || '';
     const oid  = qp.get('oid')   || '';
 
-    // IMPORTANT: put your real bot username here (NO @)
+    // Your REAL bot username (NO @)
     const BOT  = "thai_forms_helper_bot";
 
-    // Build deep links
-    const payload    = `ppcap_${encodeURIComponent(tok)}_${encodeURIComponent(oid)}`;
-    const deeplinkWeb = `https://t.me/${BOT}?start=${payload}`;
-    const deeplinkApp = `tg://resolve?domain=${BOT}&start=${encodeURIComponent(`ppcap_${tok}_${oid}`)}`;
-    // Android intent with browser fallback to t.me
-    const intentUrl  = `intent://resolve?domain=${BOT}&start=${encodeURIComponent(`ppcap_${tok}_${oid}`)}#Intent;scheme=tg;package=org.telegram.messenger;S.browser_fallback_url=${encodeURIComponent(deeplinkWeb)};end`;
+    const payload      = `ppcap_${encodeURIComponent(tok)}_${encodeURIComponent(oid)}`;
+    const deeplinkWeb  = `https://t.me/${BOT}?start=${payload}`;
+    const deeplinkApp  = `tg://resolve?domain=${BOT}&start=${encodeURIComponent(`ppcap_${tok}_${oid}`)}`;
+    const intentUrl    = `intent://resolve?domain=${BOT}&start=${encodeURIComponent(`ppcap_${tok}_${oid}`)}#Intent;scheme=tg;package=org.telegram.messenger;S.browser_fallback_url=${encodeURIComponent(deeplinkWeb)};end`;
 
-    // Expose manual link early
-    const manual = document.getElementById('manual');
-    const lnk    = document.getElementById('lnk');
-    lnk.href     = deeplinkWeb;
+    const lnk = document.getElementById('lnk');
+    lnk.href  = deeplinkWeb;
 
-    // Try progressively: app scheme -> intent -> web (t.me) -> show manual
-    function tryOpenSequence() {
-      let step = 0;
-      function next() {
-        step++;
-        if (document.visibilityState === 'hidden') return; // user switched to Telegram
-        switch (step) {
-          case 1: location.href = deeplinkApp; break;            // tg:// (often works on Android)
-          case 2: setTimeout(next, 350); break;                  // short wait
-          case 3: location.href = intentUrl; break;              // Android intent with fallback
-          case 4: setTimeout(next, 500); break;
-          case 5: location.href = deeplinkWeb; break;            // https://t.me (prompts to open)
-          case 6:
-            manual.style.display = 'block';                      // show manual button
-            break;
-        }
-      }
-      next();
+    // Progressive attempts; button stays visible as fallback
+    function tryOpen() {
+      let tried = false;
+      const jump = (url, delay) => setTimeout(() => { tried = true; location.href = url; }, delay);
+      // 1) tg:// (often works on Android)
+      jump(deeplinkApp, 50);
+      // 2) intent:// with fallback
+      jump(intentUrl, 400);
+      // 3) https://t.me (prompts to open Telegram)
+      jump(deeplinkWeb, 900);
+      // If user switches apps, this page will just remain in background (expected).
     }
-
-    // Kick off after a tick so layout paints
-    setTimeout(tryOpenSequence, 60);
+    tryOpen();
 </script>
 </body>
 </html>
