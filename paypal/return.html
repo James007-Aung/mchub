@@ -7,22 +7,21 @@
     <title>Redirecting…</title>
     <style>
         body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 24px; }
-        .btn { display:inline-block; padding:14px 18px; border-radius:8px; background:#229ED9; color:#fff; text-decoration:none; font-weight:600; }
         .hint { color:#444; margin-top:12px; }
     </style>
 </head>
 <body>
-<h1 style="margin:0 0 8px 0;">Returning to Telegram…</h1>
-<p class="hint">If Telegram doesn’t open automatically, tap the button below. If nothing happens, close this tab and switch back to Telegram manually.</p>
-
-<p><a id="lnk" class="btn" href="#" rel="noopener">Open in Telegram</a></p>
+<h1 style="margin:0 0 8px 0;">Redirecting back to Telegram…</h1>
+<p class="hint">
+    If Telegram doesn’t open automatically, close this tab and return to your Telegram chat manually.
+</p>
 
 <script>
     const qp   = new URLSearchParams(location.search);
     const tok  = qp.get('token') || '';
     const oid  = qp.get('oid')   || '';
 
-    // Your REAL bot username (NO @)
+    // Your real bot username (NO @)
     const BOT  = "thai_forms_helper_bot";
 
     const payload      = `ppcap_${encodeURIComponent(tok)}_${encodeURIComponent(oid)}`;
@@ -30,20 +29,12 @@
     const deeplinkApp  = `tg://resolve?domain=${BOT}&start=${encodeURIComponent(`ppcap_${tok}_${oid}`)}`;
     const intentUrl    = `intent://resolve?domain=${BOT}&start=${encodeURIComponent(`ppcap_${tok}_${oid}`)}#Intent;scheme=tg;package=org.telegram.messenger;S.browser_fallback_url=${encodeURIComponent(deeplinkWeb)};end`;
 
-    const lnk = document.getElementById('lnk');
-    lnk.href  = deeplinkWeb;
-
-    // Progressive attempts; button stays visible as fallback
+    // Try auto switch — if blocked, user can simply close browser as instructed
     function tryOpen() {
-      let tried = false;
-      const jump = (url, delay) => setTimeout(() => { tried = true; location.href = url; }, delay);
-      // 1) tg:// (often works on Android)
-      jump(deeplinkApp, 50);
-      // 2) intent:// with fallback
-      jump(intentUrl, 400);
-      // 3) https://t.me (prompts to open Telegram)
-      jump(deeplinkWeb, 900);
-      // If user switches apps, this page will just remain in background (expected).
+      const jump = (url, delay) => setTimeout(() => { location.href = url; }, delay);
+      jump(deeplinkApp, 50);    // tg://
+      jump(intentUrl,   400);   // Android intent with fallback
+      jump(deeplinkWeb, 900);   // fallback to t.me (prompts Telegram open)
     }
     tryOpen();
 </script>
