@@ -13,26 +13,47 @@
 <body>
 <h1 style="margin:0 0 8px 0;">Payment was cancelled</h1>
 <p class="hint">
-    You can close this tab and return to Telegram. We’ll try to switch you back automatically.
+    Taking you back to Telegram…
 </p>
 
 <script>
     const qp  = new URLSearchParams(location.search);
     const oid = qp.get('oid') || '';
+    const BOT = "thai_forms_helper_bot"; // NO '@'
 
-    const BOT        = "thai_forms_helper_bot";  // NO '@'
-    const payload    = `ppcancel_${encodeURIComponent(oid)}`;
-    const deeplinkWeb= `https://t.me/${BOT}?start=${payload}`;
-    const deeplinkApp= `tg://resolve?domain=${BOT}&start=${encodeURIComponent(`ppcancel_${oid}`)}`;
-    const intentUrl  = `intent://resolve?domain=${BOT}&start=${encodeURIComponent(`ppcancel_${oid}`)}#Intent;scheme=tg;package=org.telegram.messenger;S.browser_fallback_url=${encodeURIComponent(deeplinkWeb)};end`;
+    // Deep-link payloads
+    const ppcancel = `ppcancel_${oid}`;
+    const deeplinkWeb = `https://t.me/${BOT}?start=${encodeURIComponent(ppcancel)}`;
+    const deeplinkApp = `tg://resolve?domain=${BOT}&start=${encodeURIComponent(ppcancel)}`;
+    const intentUrl   = `intent://resolve?domain=${BOT}&start=${encodeURIComponent(ppcancel)}#Intent;scheme=tg;package=org.telegram.messenger;S.browser_fallback_url=${encodeURIComponent(deeplinkWeb)};end`;
 
-    function tryOpen() {
-      const jump = (url, delay) => setTimeout(() => { location.href = url; }, delay);
-      jump(deeplinkApp, 50);
-      jump(intentUrl,   400);
-      jump(deeplinkWeb, 900);
+    // === Single-shot guard ===
+    let fired = false;
+    function navigateOnce(url) {
+      if (fired) return;
+      fired = true;
+      location.replace(url);
+      setTimeout(() => { try { location.replace('about:blank'); } catch(e){} }, 1500);
     }
-    tryOpen();
+
+    // Heuristic: prefer tg:// if supported; else intent on Android; else web t.me
+    const ua = navigator.userAgent || '';
+    const isAndroid = /Android/i.test(ua);
+    const isTelegramInApp = /Telegram/i.test(ua);
+
+    if (isAndroid && !isTelegramInApp) {
+      navigateOnce(intentUrl);
+    } else {
+      navigateOnce(deeplinkApp);
+    }
+</script>
+
+<p class="hint" style="margin-top:16px;">
+    Not opening? <a id="manual" href="#">Open in Telegram</a>
+</p>
+<script>
+    const manual = document.getElementById('manual');
+    manual.href = deeplinkWeb;
 </script>
 </body>
 </html>
