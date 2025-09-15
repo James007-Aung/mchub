@@ -5,17 +5,58 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="robots" content="noindex,nofollow" />
     <title>Payment Cancelled</title>
+    <style>
+        body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 24px; }
+        .btn { display:inline-block; padding:14px 18px; border-radius:8px; background:#229ED9; color:#fff; text-decoration:none; font-weight:600; }
+        .hint { color:#444; margin-top:12px; }
+        #manual { display:none; margin-top:16px; }
+    </style>
 </head>
 <body>
-<p>Payment was cancelled. Taking you back to Telegram…</p>
+<h1 style="margin:0 0 8px 0;">Payment was cancelled</h1>
+<p class="hint">Returning you to Telegram…</p>
+
+<div id="manual">
+    <a id="lnk" class="btn" href="#" rel="noopener">Open in Telegram</a>
+    <p class="hint">If nothing happens, switch back to Telegram manually.</p>
+</div>
+
 <script>
     const qp  = new URLSearchParams(location.search);
     const oid = qp.get('oid') || '';
-    const BOT = "thai_forms_helper_bot"; // <-- same bot username (NO @)
-    const deeplink = `https://t.me/${BOT}?start=ppcancel_${encodeURIComponent(oid)}`;
-    location.replace(deeplink);
+
+    // IMPORTANT: put your real bot username here (NO @)
+    const BOT = "thai_forms_helper_bot";
+
+    const payload     = `ppcancel_${encodeURIComponent(oid)}`;
+    const deeplinkWeb = `https://t.me/${BOT}?start=${payload}`;
+    const deeplinkApp = `tg://resolve?domain=${BOT}&start=${encodeURIComponent(`ppcancel_${oid}`)}`;
+    const intentUrl   = `intent://resolve?domain=${BOT}&start=${encodeURIComponent(`ppcancel_${oid}`)}#Intent;scheme=tg;package=org.telegram.messenger;S.browser_fallback_url=${encodeURIComponent(deeplinkWeb)};end`;
+
+    const manual = document.getElementById('manual');
+    const lnk    = document.getElementById('lnk');
+    lnk.href     = deeplinkWeb;
+
+    function tryOpenSequence() {
+      let step = 0;
+      function next() {
+        step++;
+        if (document.visibilityState === 'hidden') return;
+        switch (step) {
+          case 1: location.href = deeplinkApp; break;
+          case 2: setTimeout(next, 350); break;
+          case 3: location.href = intentUrl; break;
+          case 4: setTimeout(next, 500); break;
+          case 5: location.href = deeplinkWeb; break;
+          case 6:
+            manual.style.display = 'block';
+            break;
+        }
+      }
+      next();
+    }
+
+    setTimeout(tryOpenSequence, 60);
 </script>
-<p>If you are not redirected, <a id="lnk">open Telegram manually</a>.</p>
-<script>document.getElementById('lnk').href = (typeof deeplink !== 'undefined') ? deeplink : '#';</script>
 </body>
 </html>
