@@ -49,15 +49,22 @@
         navigateOnce(deeplinkApp);
       }
     } else if (isMobile && isTelegramInApp) {
-      // Telegram in-app browser: do not open anything (avoid "Open with" sheet)
       try {
+        // Update copy to reassure users (works for both iOS & Android in-app).
         const p = document.querySelector('.hint');
-        if (p) p.textContent = 'Payment confirmed. You can close this tab and return to your Telegram chat.';
+        if (p) p.textContent = 'Payment confirmed. Returning to Telegram…';
         if (document && document.title) {
-          document.title = 'Payment confirmed — return to Telegram';
+          document.title = 'Payment confirmed — returning to Telegram';
         }
+        // Auto-close/blank the webview shortly after capture fires.
+        // window.close() may be blocked, so also fall back to about:blank.
+        setTimeout(() => {
+          try { window.close(); } catch (e) {}
+          try { location.replace('about:blank'); } catch (e) {}
+        }, 900);
       } catch (_) {}
     } else {
+
       // Desktop: show button, open tg:// on click, cancel fallback if app opens
       document.write(`
         <div style="margin-top:24px;">
