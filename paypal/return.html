@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="robots" content="noindex,nofollow" />
-    <title>Redirecting…</title>
+    <title>Redirecting back to Telegram…</title>
     <style>
         body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 24px; }
         .hint { color:#444; margin-top:12px; }
@@ -16,7 +16,6 @@
     If Telegram doesn’t open automatically, tap the blue button below to open Telegram and return to your chat manually.
 </p>
 
-<!-- ===== START PATCH: return.html JS minimal-safe (cancel fallback if app opens) ===== -->
 <script>
     const qp   = new URLSearchParams(location.search);
     const tok  = qp.get('token') || '';
@@ -28,7 +27,7 @@
     const deeplinkWeb = `https://t.me/${BOT}?start=${encodeURIComponent(ppcap)}`;
     const intentUrl   = `intent://resolve?domain=${BOT}&start=${encodeURIComponent(ppcap)}#Intent;scheme=tg;package=org.telegram.messenger;S.browser_fallback_url=${encodeURIComponent(deeplinkWeb)};end`;
 
-    // Single-shot guard (mobile auto path only)
+    // Single-shot guard
     let fired = false;
     function navigateOnce(url) {
       if (fired) return;
@@ -43,13 +42,23 @@
     const isMobile = /Android|iPhone|iPad/i.test(ua);
 
     if (isMobile && !isTelegramInApp) {
-      // Android Chrome etc. → intent works best
-      navigateOnce(intentUrl);
+      // Outside Telegram: Android → intent://, iOS → tg://
+      if (isAndroid) {
+        navigateOnce(intentUrl);
+      } else {
+        navigateOnce(deeplinkApp);
+      }
     } else if (isMobile && isTelegramInApp) {
-      // Telegram in-app webview → tg:// works
-      navigateOnce(deeplinkApp);
+      // Telegram in-app browser: do not open anything (avoid "Open with" sheet)
+      try {
+        const p = document.querySelector('.hint');
+        if (p) p.textContent = 'Payment confirmed. You can close this tab and return to your Telegram chat.';
+        if (document && document.title) {
+          document.title = 'Payment confirmed — return to Telegram';
+        }
+      } catch (_) {}
     } else {
-      // Desktop: show one button. Try tg:// on click; fallback to t.me ONLY if app didn't take focus.
+      // Desktop: show button, open tg:// on click, cancel fallback if app opens
       document.write(`
         <div style="margin-top:24px;">
           <p style="font-size:16px;margin-bottom:12px;">
@@ -63,8 +72,6 @@
         </div>
       `);
 
-      // After we attempt tg://, schedule a fallback to https://t.me/
-      // BUT cancel that fallback if the page loses focus / becomes hidden (Telegram Desktop opened).
       window.addEventListener('DOMContentLoaded', () => {
         const btn = document.getElementById('openTgBtn');
         if (!btn) return;
@@ -75,16 +82,16 @@
           }, 1500);
 
           const cancelFallback = () => {
-            try { clearTimeout(fallbackTimer); } catch(e){}
+            clearTimeout(fallbackTimer);
             window.removeEventListener('blur', cancelFallback);
-            document.removeEventListener('visibilitychange', onVis);
             window.removeEventListener('pagehide', cancelFallback);
+            document.removeEventListener('visibilitychange', onVis);
           };
           const onVis = () => {
             if (document.visibilityState === 'hidden') cancelFallback();
           };
 
-          // If Telegram Desktop pops to front, the page blurs / becomes hidden → cancel fallback
+          // Cancel fallback if Telegram took focus
           window.addEventListener('blur', cancelFallback);
           window.addEventListener('pagehide', cancelFallback);
           document.addEventListener('visibilitychange', onVis);
@@ -92,7 +99,6 @@
       });
     }
 </script>
-<!-- ===== END PATCH: return.html JS minimal-safe (cancel fallback if app opens) ===== -->
 
 </body>
 </html>
