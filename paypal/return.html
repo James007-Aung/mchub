@@ -22,12 +22,12 @@
     const oid  = qp.get('oid')   || '';
     const BOT  = "thai_forms_helper_bot";
 
-    const ppcap  = `ppcap_${tok}_${oid}`;
+    const ppcap       = `ppcap_${tok}_${oid}`;
     const deeplinkApp = `tg://resolve?domain=${BOT}&start=${encodeURIComponent(ppcap)}`;
     const deeplinkWeb = `https://t.me/${BOT}?start=${encodeURIComponent(ppcap)}`;
     const intentUrl   = `intent://resolve?domain=${BOT}&start=${encodeURIComponent(ppcap)}#Intent;scheme=tg;package=org.telegram.messenger;S.browser_fallback_url=${encodeURIComponent(deeplinkWeb)};end`;
 
-    // Single-shot guard
+    // One-shot guard for any auto navigation (used only outside Telegram)
     let fired = false;
     function navigateOnce(url) {
       if (fired) return;
@@ -38,34 +38,46 @@
 
     const ua = navigator.userAgent || '';
     const isAndroid = /Android/i.test(ua);
-    const isTelegramInApp = /Telegram/i.test(ua);
-    const isMobile = /Android|iPhone|iPad/i.test(ua);
+    const isIOS     = /iPhone|iPad|iPod/i.test(ua);
+    const isMobile  = /Android|iPhone|iPad|iPod/i.test(ua);
 
-    if (isMobile && !isTelegramInApp) {
-      // Outside Telegram: Android → intent://, iOS → tg://
+    // Robust Telegram in-app detection (covers more Telegram UA variants and referrers)
+    const isTelegramInApp =
+      /Telegram|TgAndroid|TWeb|WebApp/i.test(ua) ||
+      /telegram/i.test(document.referrer) ||
+      (typeof window !== 'undefined' && (
+        typeof window.TelegramWebviewProxy !== 'undefined' ||
+        (window.Telegram && (window.Telegram.WebApp || window.TelegramGameProxy))
+      ));
+
+    if (isMobile && isTelegramInApp) {
+      // === Mobile, INSIDE Telegram webview (Android & iOS) ===
+      // Do NOTHING to avoid any "Open with…" chooser on Android.
+      // Auto-capture remains unchanged; users will close this tab and return to chat.
+      try {
+        const p = document.querySelector('.hint');
+        if (p) p.textContent = 'Payment confirmed. You can close this tab and return to your Telegram chat.';
+        document.title = 'Payment confirmed — return to Telegram';
+      } catch(_) {}
+
+    } else if (isMobile && !isTelegramInApp) {
+      // === Mobile, OUTSIDE Telegram ===
+      // Keep your existing behavior: Android→intent://, iOS→tg://
       if (isAndroid) {
         navigateOnce(intentUrl);
-      } else {
+      } else if (isIOS) {
         navigateOnce(deeplinkApp);
+      } else {
+        // Other mobile: safest is to do nothing (user switches back manually)
+        try {
+          const p = document.querySelector('.hint');
+          if (p) p.textContent = 'Payment confirmed. You can close this tab and return to your Telegram chat.';
+          document.title = 'Payment confirmed — return to Telegram';
+        } catch(_) {}
       }
-    } else if (isMobile && isTelegramInApp) {
-      try {
-        // Update copy to reassure users (works for both iOS & Android in-app).
-        const p = document.querySelector('.hint');
-        if (p) p.textContent = 'Payment confirmed. Returning to Telegram…';
-        if (document && document.title) {
-          document.title = 'Payment confirmed — returning to Telegram';
-        }
-        // Auto-close/blank the webview shortly after capture fires.
-        // window.close() may be blocked, so also fall back to about:blank.
-        setTimeout(() => {
-          try { window.close(); } catch (e) {}
-          try { location.replace('about:blank'); } catch (e) {}
-        }, 900);
-      } catch (_) {}
-    } else {
 
-      // Desktop: show button, open tg:// on click, cancel fallback if app opens
+    } else {
+      // === Desktop ===
       document.write(`
         <div style="margin-top:24px;">
           <p style="font-size:16px;margin-bottom:12px;">
@@ -74,18 +86,19 @@
           <a id="openTgBtn" href="${deeplinkApp}"
              style="display:inline-block;padding:12px 18px;background:#0088cc;color:#fff;
                     font-size:18px;font-weight:600;text-decoration:none;border-radius:6px;">
-             Open in Telegram
+            Open in Telegram
           </a>
         </div>
       `);
 
+      // On click: try tg://; schedule web fallback, cancel it if the app actually opens
       window.addEventListener('DOMContentLoaded', () => {
         const btn = document.getElementById('openTgBtn');
         if (!btn) return;
 
         btn.addEventListener('click', () => {
           let fallbackTimer = setTimeout(() => {
-            try { window.location.href = deeplinkWeb; } catch (e) {}
+            try { window.location.href = deeplinkWeb; } catch(e) {}
           }, 1500);
 
           const cancelFallback = () => {
@@ -98,7 +111,6 @@
             if (document.visibilityState === 'hidden') cancelFallback();
           };
 
-          // Cancel fallback if Telegram took focus
           window.addEventListener('blur', cancelFallback);
           window.addEventListener('pagehide', cancelFallback);
           document.addEventListener('visibilitychange', onVis);
