@@ -16,7 +16,7 @@
     If Telegram doesn’t open automatically, close this tab and return to your Telegram chat manually.
 </p>
 
-<!-- ===== START PATCH: return.html JS minimal-safe ===== -->
+<!-- ===== START PATCH: return.html JS minimal-safe (cancel fallback if app opens) ===== -->
 <script>
     const qp   = new URLSearchParams(location.search);
     const tok  = qp.get('token') || '';
@@ -28,7 +28,7 @@
     const deeplinkWeb = `https://t.me/${BOT}?start=${encodeURIComponent(ppcap)}`;
     const intentUrl   = `intent://resolve?domain=${BOT}&start=${encodeURIComponent(ppcap)}#Intent;scheme=tg;package=org.telegram.messenger;S.browser_fallback_url=${encodeURIComponent(deeplinkWeb)};end`;
 
-    // Single-shot guard stays intact
+    // Single-shot guard (mobile auto path only)
     let fired = false;
     function navigateOnce(url) {
       if (fired) return;
@@ -43,26 +43,56 @@
     const isMobile = /Android|iPhone|iPad/i.test(ua);
 
     if (isMobile && !isTelegramInApp) {
+      // Android Chrome etc. → intent works best
       navigateOnce(intentUrl);
     } else if (isMobile && isTelegramInApp) {
+      // Telegram in-app webview → tg:// works
       navigateOnce(deeplinkApp);
     } else {
-      // Desktop: no auto-fire, show one safe button
+      // Desktop: show one button. Try tg:// on click; fallback to t.me ONLY if app didn't take focus.
       document.write(`
         <div style="margin-top:24px;">
           <p style="font-size:16px;margin-bottom:12px;">
             ✅ Click below to confirm your payment in Telegram:
           </p>
-          <a href="${deeplinkApp}"
-             onclick="setTimeout(() => { window.location.href='${deeplinkWeb}'; }, 1200);"
+          <a id="openTgBtn" href="${deeplinkApp}"
              style="display:inline-block;padding:12px 18px;background:#0088cc;color:#fff;
                     font-size:18px;font-weight:600;text-decoration:none;border-radius:6px;">
              Open in Telegram
           </a>
         </div>
       `);
+
+      // After we attempt tg://, schedule a fallback to https://t.me/
+      // BUT cancel that fallback if the page loses focus / becomes hidden (Telegram Desktop opened).
+      window.addEventListener('DOMContentLoaded', () => {
+        const btn = document.getElementById('openTgBtn');
+        if (!btn) return;
+
+        btn.addEventListener('click', () => {
+          let fallbackTimer = setTimeout(() => {
+            try { window.location.href = deeplinkWeb; } catch (e) {}
+          }, 1500);
+
+          const cancelFallback = () => {
+            try { clearTimeout(fallbackTimer); } catch(e){}
+            window.removeEventListener('blur', cancelFallback);
+            document.removeEventListener('visibilitychange', onVis);
+            window.removeEventListener('pagehide', cancelFallback);
+          };
+          const onVis = () => {
+            if (document.visibilityState === 'hidden') cancelFallback();
+          };
+
+          // If Telegram Desktop pops to front, the page blurs / becomes hidden → cancel fallback
+          window.addEventListener('blur', cancelFallback);
+          window.addEventListener('pagehide', cancelFallback);
+          document.addEventListener('visibilitychange', onVis);
+        }, { once: true });
+      });
     }
 </script>
-<!-- ===== END PATCH: return.html JS minimal-safe ===== -->
+<!-- ===== END PATCH: return.html JS minimal-safe (cancel fallback if app opens) ===== -->
+
 </body>
 </html>
