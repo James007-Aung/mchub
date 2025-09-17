@@ -16,51 +16,53 @@
     If Telegram doesn’t open automatically, close this tab and return to your Telegram chat manually.
 </p>
 
+<!-- ===== START PATCH: return.html JS minimal-safe ===== -->
 <script>
     const qp   = new URLSearchParams(location.search);
     const tok  = qp.get('token') || '';
     const oid  = qp.get('oid')   || '';
-    const BOT  = "thai_forms_helper_bot"; // NO '@'
+    const BOT  = "thai_forms_helper_bot";
 
-    // Deep-link payloads
     const ppcap  = `ppcap_${tok}_${oid}`;
-    const deeplinkWeb = `https://t.me/${BOT}?start=${encodeURIComponent(ppcap)}`;
     const deeplinkApp = `tg://resolve?domain=${BOT}&start=${encodeURIComponent(ppcap)}`;
+    const deeplinkWeb = `https://t.me/${BOT}?start=${encodeURIComponent(ppcap)}`;
     const intentUrl   = `intent://resolve?domain=${BOT}&start=${encodeURIComponent(ppcap)}#Intent;scheme=tg;package=org.telegram.messenger;S.browser_fallback_url=${encodeURIComponent(deeplinkWeb)};end`;
 
-    // === Single-shot guard ===
+    // Single-shot guard stays intact
     let fired = false;
     function navigateOnce(url) {
       if (fired) return;
       fired = true;
-      // Use replace() to avoid history clutter; then blank out to discourage back/second fire.
       location.replace(url);
       setTimeout(() => { try { location.replace('about:blank'); } catch(e){} }, 1500);
     }
 
-    // Heuristic: prefer tg:// if supported; else intent on Android; else web t.me
-    // We will attempt AT MOST ONE navigation thanks to the guard above.
     const ua = navigator.userAgent || '';
     const isAndroid = /Android/i.test(ua);
     const isTelegramInApp = /Telegram/i.test(ua);
+    const isMobile = /Android|iPhone|iPad/i.test(ua);
 
-    // Some in-app browsers block tg://; the intent scheme works better on Android Chrome.
-    if (isAndroid && !isTelegramInApp) {
+    if (isMobile && !isTelegramInApp) {
       navigateOnce(intentUrl);
-    } else {
+    } else if (isMobile && isTelegramInApp) {
       navigateOnce(deeplinkApp);
+    } else {
+      // Desktop: no auto-fire, show one safe button
+      document.write(`
+        <div style="margin-top:24px;">
+          <p style="font-size:16px;margin-bottom:12px;">
+            ✅ Click below to confirm your payment in Telegram:
+          </p>
+          <a href="${deeplinkApp}"
+             onclick="setTimeout(() => { window.location.href='${deeplinkWeb}'; }, 1200);"
+             style="display:inline-block;padding:12px 18px;background:#0088cc;color:#fff;
+                    font-size:18px;font-weight:600;text-decoration:none;border-radius:6px;">
+             Open in Telegram
+          </a>
+        </div>
+      `);
     }
-
-    // As an absolute last resort (if the scheme is blocked), provide a manual link in the DOM below.
-    // We do NOT auto-fire t.me after a delay anymore to avoid multiple /start hits.
 </script>
-
-<p class="hint" style="margin-top:16px;">
-    Not opening? <a id="manual" href="#">Open in Telegram</a>
-</p>
-<script>
-    const manual = document.getElementById('manual');
-    manual.href = (navigator.userAgent||'').includes('Android') ? '<???intent???>'.replace('<???intent???>', '') || deeplinkWeb : deeplinkWeb;
-</script>
+<!-- ===== END PATCH: return.html JS minimal-safe ===== -->
 </body>
 </html>
