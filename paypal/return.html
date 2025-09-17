@@ -27,7 +27,7 @@
     const deeplinkWeb = `https://t.me/${BOT}?start=${encodeURIComponent(ppcap)}`;
     const intentUrl   = `intent://resolve?domain=${BOT}&start=${encodeURIComponent(ppcap)}#Intent;scheme=tg;package=org.telegram.messenger;S.browser_fallback_url=${encodeURIComponent(deeplinkWeb)};end`;
 
-    // One-shot guard for any auto navigation (used only outside Telegram)
+    // One-shot guard for any auto navigation (used outside Telegram only)
     let fired = false;
     function navigateOnce(url) {
       if (fired) return;
@@ -41,19 +41,16 @@
     const isIOS     = /iPhone|iPad|iPod/i.test(ua);
     const isMobile  = /Android|iPhone|iPad|iPod/i.test(ua);
 
-    // Robust Telegram in-app detection (covers more Telegram UA variants and referrers)
-    const isTelegramInApp =
-      /Telegram|TgAndroid|TWeb|WebApp/i.test(ua) ||
-      /telegram/i.test(document.referrer) ||
-      (typeof window !== 'undefined' && (
-        typeof window.TelegramWebviewProxy !== 'undefined' ||
-        (window.Telegram && (window.Telegram.WebApp || window.TelegramGameProxy))
-      ));
+    // Robust Telegram in-app detection (covers more variants than a simple /Telegram/ UA test)
+    const isTelegramUA   = /Telegram|TgAndroid|TWeb|WebApp/i.test(ua);
+    const hasTGObjects   = !!(window.TelegramWebviewProxy || (window.Telegram && (window.Telegram.WebApp || window.TelegramGameProxy)));
+    const fromTGReferrer = /telegram|^https?:\/\/t\.me\//i.test(document.referrer);
+    const isTelegramInApp = isTelegramUA || hasTGObjects || fromTGReferrer;
 
     if (isMobile && isTelegramInApp) {
       // === Mobile, INSIDE Telegram webview (Android & iOS) ===
-      // Do NOTHING to avoid any "Open with…" chooser on Android.
-      // Auto-capture remains unchanged; users will close this tab and return to chat.
+      // Do NOTHING to avoid any "Open with…" chooser in Android Telegram.
+      // Auto-capture stays intact; user will close the tab to return to chat.
       try {
         const p = document.querySelector('.hint');
         if (p) p.textContent = 'Payment confirmed. You can close this tab and return to your Telegram chat.';
@@ -68,7 +65,7 @@
       } else if (isIOS) {
         navigateOnce(deeplinkApp);
       } else {
-        // Other mobile: safest is to do nothing (user switches back manually)
+        // Other mobile: safest is to do nothing and let user switch back
         try {
           const p = document.querySelector('.hint');
           if (p) p.textContent = 'Payment confirmed. You can close this tab and return to your Telegram chat.';
@@ -91,7 +88,7 @@
         </div>
       `);
 
-      // On click: try tg://; schedule web fallback, cancel it if the app actually opens
+      // On click: try tg://; schedule web fallback, cancel it if app opens (page loses focus)
       window.addEventListener('DOMContentLoaded', () => {
         const btn = document.getElementById('openTgBtn');
         if (!btn) return;
