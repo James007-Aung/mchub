@@ -12,9 +12,11 @@
 html, body {
   margin: 0; padding: 0;
   background: var(--bg); color: var(--fg);
-  font-family: 'Inter', system-ui, sans-serif; /* Modern font integration */
+  font-family: 'Inter', system-ui, sans-serif;
   font-size: 16px; line-height: 1.6;
+  overflow-x: hidden;        /* <-- add this line */
 }
+
 a { color: var(--brand); text-decoration: none; transition: color 0.2s ease; }
 a:hover { color: var(--accent); }
 .container { max-width: 1200px; /* Wider for larger screens */ margin: 0 auto; padding: 1.5rem; }
@@ -62,43 +64,64 @@ input[type=checkbox] { transform: scale(1.2); margin-right: 0.5rem; }
 .btn.ghost { background: #fff; color: var(--brand); border: 1px solid rgba(37,99,235,0.45); }
 .btn.ghost:hover { background: #f4f7ff; }
 
-/* START ANCHOR: .hero { (full-bleed, all platforms, cover) */
+/* START ANCHOR: .hero-panel (clean hero; no card) */
+.hero-panel {
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+  max-width: none;
+  margin: 0;
+}
+/* END ANCHOR: .hero-panel (clean hero; no card) */
+
+/* START ANCHOR: .hero { (full-bleed, cover) */
 .hero {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
 
-  /* Break out of centered container to span edge-to-edge */
+  /* full-bleed */
   width: 100vw;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
 
-  /* Full-bleed hero background (fills, may crop edges) */
-  background-color: #f4f7fb;
-  background-image: url('/assets/img/hero-feature.webp');
-  background-repeat: no-repeat;
-  background-position: 70% center;   /* focal point bias; adjust 50–75% to taste */
-  background-size: cover;            /* <-- fill viewport consistently */
+  /* background image */
+  background: #f4f7fb url('/assets/img/hero-feature.webp') 65% center / cover no-repeat;
 
-  /* Viewport-driven height (no aspect-ratio quirks) */
+  /* consistent hero height across devices */
   min-height: clamp(520px, 70svh, 880px);
 
   padding: clamp(32px, 7vw, 88px) 20px;
   border-bottom: 1px solid var(--border);
 }
-/* END ANCHOR: .hero } (full-bleed, all platforms, cover) */
+/* END ANCHOR: .hero } (full-bleed, cover) */
 
 @supports (width: 100dvw) { .hero { width: 100dvw; } }
 
 
+/* START ANCHOR: .hero::before (left gradient for legibility) */
 .hero::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(255, 255, 255, 0.4); /* just a soft tint */
-  z-index: 0; /* no blur here, background stays sharp */
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.92) 0%,
+    rgba(255,255,255,0.72) 22%,
+    rgba(255,255,255,0.36) 45%,
+    rgba(255,255,255,0.10) 60%,
+    rgba(255,255,255,0.00) 72%
+  );
+  pointer-events: none;
+  z-index: 0;
 }
+/* END ANCHOR: .hero::before (left gradient for legibility) */
+
 
 
 /* Gentle vignette to keep edges calm (you had this as ::after — preserved) */
@@ -115,67 +138,78 @@ input[type=checkbox] { transform: scale(1.2); margin-right: 0.5rem; }
   z-index: 0;
 }
 
-/* Content sits above both overlays */
+/* START ANCHOR: .hero layout (no card) */
+.hero > .container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: inherit;
+}
+
 .hero .hero-content {
-  max-width: 720px;
-  margin: 0 auto;
-  text-align: center;
+  max-width: 640px;
+  text-align: left;
+  padding: 0;
+  margin-left: clamp(12px, 4vw, 40px);
   position: relative;
-  z-index: 1;
+  z-index: 1; /* above gradient */
 }
 
 .hero h1 {
-  font-size: clamp(2.25rem, 4vw, 3.25rem);
-  margin: 0 0 1rem;
+  font-size: clamp(2.4rem, 6vw, 4rem);
+  line-height: 1.1;
+  margin: 0 0 .75rem;
   font-weight: 700;
 }
 
 .hero-subtitle {
-  font-size: 1.125rem;
-  margin: 0 0 1.5rem;
+  font-size: clamp(1rem, 2.2vw, 1.25rem);
+  line-height: 1.45;
+  margin: 0 0 1.25rem;
 }
 
 .hero-cta {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
   gap: 0.75rem;
+  justify-content: flex-start;
   margin-top: 1rem;
 }
 
-.hero-cta .btn {
-  min-width: 200px;
-  justify-content: center;
-}
+.hero-cta .btn { min-width: 160px; justify-content: center; }
+/* END ANCHOR: .hero layout (no card) */
 
-/* START ANCHOR: @media .hero (mobile full-bleed, cover) */
+/* START ANCHOR: @media .hero (mobile clean) */
 @media (max-width: 820px) {
   .hero {
     width: 100vw;
     margin-left: calc(50% - 50vw);
     margin-right: calc(50% - 50vw);
 
-    /* keep the same cover behavior on phones */
-    background-position: 60% center;  /* a bit more right-bias for your comp */
+    background-position: center;
     background-size: cover;
 
-    /* Taller on phones, but respect the URL bar (svh) */
-    min-height: clamp(460px, 74svh, 820px);
-
-    padding: clamp(20px, 6vw, 32px) 16px;
+    min-height: clamp(480px, 78svh, 860px);
+    padding: clamp(16px, 6vw, 28px) 16px;
   }
+
+  /* On phones, a simple soft tint reads better than a directional gradient */
+  .hero::before {
+    background: rgba(255,255,255,0.78);
+  }
+
+  .hero > .container { justify-content: center; }
 
   .hero .hero-content {
-    width: clamp(280px, 92vw, 560px);
-    padding: clamp(16px, 4vw, 24px);
-    margin: 0 auto;
+    margin-left: 0;
+    text-align: center;
+    max-width: 560px;
   }
 
-  .hero h1 { font-size: clamp(28px, 7vw, 40px); line-height: 1.2; }
-  .hero-subtitle { font-size: clamp(14px, 4.2vw, 18px); line-height: 1.45; }
-  .hero-cta .btn { padding: 12px 16px; font-size: clamp(14px, 4.2vw, 16px); }
+  .hero-cta { justify-content: center; }
+  .hero-cta .btn { min-width: 180px; }
 }
-/* END ANCHOR: @media .hero (mobile full-bleed, cover) */
+/* END ANCHOR: @media .hero (mobile clean) */
 
 
 /* ===== Features (your existing grid; kept) ===== */
@@ -214,19 +248,4 @@ input[type=checkbox] { transform: scale(1.2); margin-right: 0.5rem; }
   .tour-step.invert .tour-image { order: 2; }
 }
 
-.hero-panel {
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(8px) saturate(120%);
-  -webkit-backdrop-filter: blur(8px) saturate(120%);
-  border: 1px solid rgba(229, 231, 235, 0.9);
-  border-radius: 28px;
-  padding: clamp(20px, 3vw, 36px);
-  box-shadow: 0 10px 28px rgba(0,0,0,.08);
-  max-width: 900px;
-  margin: 0 auto;
-}
 
-/* Slightly stronger panel on small screens */
-@media (max-width: 820px){
-  .hero-panel{ background: rgba(255,255,255,0.84); }
-}
