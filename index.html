@@ -1,33 +1,72 @@
-<!doctype html><html lang="en"><head>
-    <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- START index.html (replace whole file) -->
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>McHub – Myanmar Community Hub</title>
     <link rel="stylesheet" href="/assets/css/site.css">
-</head><body>
-<!-- header -->
-<div class="nav"><div class="container">
-    <a class="brand" href="/">McHub</a>
-    <nav>
-        <a href="/" data-path="/">Home</a>
-        <a href="/about.html" data-path="/about.html">About</a>
-        <a href="/store.html" data-path="/store.html">App Store</a>
-        <a href="/policies.html" data-path="/policies.html">Policies & Terms</a>
-        <a href="/delete/" data-path="/delete">Delete Account</a>
-    </nav>
-</div></div>
+</head>
+<body>
 
-<main class="container hero">
-    <h1>Myanmar Community Hub</h1>
-    <p class="muted">Services & booking • Nearby places • Community features</p>
-    <p>
-        <a class="btn primary" href="/store.html">Get the App</a>
-        <a class="btn" href="/policies.html#user-policy">Read User Policy</a>
-    </p>
+<!-- NAVBAR -->
+<div class="nav">
+    <div class="container">
+        <a class="brand" href="/">McHub</a>
+        <nav>
+            <a href="/" data-path="/">Home</a>
+            <a href="/about.html" data-path="/about.html">About</a>
+            <a href="/store.html" data-path="/store.html">App Store</a>
+            <a href="/policies.html" data-path="/policies.html">Policies & Terms</a>
+            <a href="/delete/" data-path="/delete">Delete Account</a>
+        </nav>
+    </div>
+</div>
+
+<!-- HERO SECTION -->
+<header class="hero">
+    <div class="container hero-content">
+        <h1>Myanmar Community Hub</h1>
+        <p class="muted hero-subtitle">
+            Connect • Discover • Book Services — all in one place
+        </p>
+        <div class="hero-cta">
+            <a class="btn primary" href="/store.html">📲 Get the App</a>
+            <a class="btn" href="/policies.html#user-policy">Read User Policy</a>
+        </div>
+    </div>
+</header>
+
+<!-- FEATURE SECTION -->
+<main class="container features">
+    <div class="feature-card">
+        <div class="feature-icon">🛒</div>
+        <h3>Book Services</h3>
+        <p>Visa application, extension, VIP services, airport pickup — all from your phone.</p>
+    </div>
+
+    <div class="feature-card">
+        <div class="feature-icon">📍</div>
+        <h3>Nearby Places</h3>
+        <p>Find Myanmar restaurants, shops, clinics, and embassies near you — with one tap.</p>
+    </div>
+
+    <div class="feature-card">
+        <div class="feature-icon">💬</div>
+        <h3>Community Chat</h3>
+        <p>Connect with others, post free ads, and grow your network in a safe environment.</p>
+    </div>
 </main>
 
-<!-- footer -->
-<div class="footer"><div class="container">
-    <p class="muted">© <span id="y"></span> McHub. All rights reserved.</p>
-    <script>document.getElementById('y').textContent = new Date().getFullYear();</script>
-</div></div>
+<!-- FOOTER -->
+<div class="footer">
+    <div class="container">
+        <p class="muted">© <span id="y"></span> McHub. All rights reserved.</p>
+        <script>document.getElementById('y').textContent = new Date().getFullYear();</script>
+    </div>
+</div>
+
 <script src="/assets/js/site.js"></script>
-</body></html>
+</body>
+</html>
+<!-- END index.html -->

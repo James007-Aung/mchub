@@ -22,3 +22,46 @@ input[type=checkbox]{transform:scale(1.1);margin-right:8px}
 .notice{padding:12px;border-radius:10px;margin-top:12px}
 .notice.ok{background:#ecfdf5;border:1px solid #10b981}
 .notice.err{background:#fef2f2;border:1px solid #ef4444}
+/* START: Professional Landing Page Enhancements */
+.hero {
+  background: linear-gradient(135deg, #e0f2fe 0%, #f8fafc 100%);
+  text-align: center;
+  padding: 80px 20px;
+  border-bottom: 1px solid #eee;
+}
+.hero h1 {
+  font-size: 2.4rem;
+  margin-bottom: 10px;
+}
+.hero-subtitle {
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+}
+.hero-cta .btn {
+  margin: 8px;
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin: 40px auto;
+}
+.feature-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.06);
+}
+.feature-icon {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+/* END: Professional Landing Page Enhancements */
