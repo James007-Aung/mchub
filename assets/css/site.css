@@ -65,3 +65,26 @@ input[type=checkbox]{transform:scale(1.1);margin-right:8px}
   margin-bottom: 10px;
 }
 /* END: Professional Landing Page Enhancements */
+/* START: Hero Background Image Enhancement */
+.hero {
+  /* override the gradient with your new WebP image */
+  background: url('/assets/img/hero-feature.webp') center/cover no-repeat;
+  position: relative; /* required for overlay */
+  color: #111;
+}
+
+/* Soft overlay to keep text readable */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.6);
+  z-index: 0;
+}
+
+/* Ensure hero content stays above overlay */
+.hero-content {
+  position: relative;
+  z-index: 1;
+}
+/* END: Hero Background Image Enhancement */

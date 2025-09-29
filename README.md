@@ -1,8 +1,8 @@
 # mchub
 A mobile app platform designed to help connect Diaspora communities living across the globe.
-# McHub - Myanmar Community Hub
+# Mc Hub - Myanmar Community Hub
 
-Welcome to **McHub**, a mobile app platform designed to help connect Myanamr Diaspora communities living across the globe. We focus on consulting visa services, nearby user connections, and community features accessible and easy to use.
+Welcome to **MC Hub**, a mobile app platform designed to help connect Myanamr Diaspora communities living across the globe. We focus on consulting visa services, nearby user connections, and community features accessible and easy to use.
 
 ## 📱 App Features
 - Visa service booking and management
