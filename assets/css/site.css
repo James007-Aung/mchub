@@ -113,3 +113,65 @@ input[type=checkbox]{transform:scale(1.1);margin-right:8px}
   .tour-step.invert .tour-text { order: 1; }
   .tour-step.invert .tour-image { order: 2; }
 }
+/* === Hero polish: photo layering, overlay, layout === */
+.hero{
+  /* Keep your image but add a subtle gradient layer for readability */
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.85) 0%, rgba(255,255,255,.70) 45%, rgba(255,255,255,.85) 100%),
+    url('/assets/img/hero-feature.webp') center/cover no-repeat;
+  padding: 96px 20px; /* a bit more breathing room */
+  border-bottom: 1px solid #eee;
+  position: relative;
+}
+.hero .hero-content{
+  max-width: 860px;   /* narrower for better legibility over photo */
+  margin: 0 auto;
+}
+.hero h1{ font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 12px; }
+.hero-subtitle{ font-size: 1.1rem; margin-bottom: 24px; }
+
+/* Optional soft vignette for extra focus on center text */
+.hero::after{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background: radial-gradient(ellipse at center,
+              rgba(0,0,0,0) 40%, rgba(0,0,0,.06) 100%);
+}
+
+/* Make overlay a touch stronger on small screens for readability */
+@media (max-width: 640px){
+  .hero{
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.92) 0%, rgba(255,255,255,.80) 55%, rgba(255,255,255,.92) 100%),
+      url('/assets/img/hero-feature.webp') center/cover no-repeat;
+    padding: 72px 16px;
+  }
+}
+
+/* === Buttons: hierarchy + icon spacing === */
+.btn{
+  display:inline-flex; align-items:center; gap:.5rem;
+  padding:12px 16px; border-radius:12px;
+  border:1px solid var(--brand);
+  transition: transform .06s ease, box-shadow .2s ease, background-color .2s ease, color .2s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,.06);
+}
+.btn .icon{
+  width:18px; height:18px; fill: currentColor; display:block;
+}
+.btn.primary{
+  background: var(--brand); color:#fff; border-color: var(--brand);
+}
+.btn.primary:hover{ transform: translateY(-1px); box-shadow:0 6px 16px rgba(37,99,235,.25); }
+.btn.ghost{
+  background:#fff; color: var(--brand);
+  border-color: rgba(37,99,235,.45);
+}
+.btn.ghost:hover{ background:#f4f7ff; }
+
+/* Tighten the card grid a touch on very wide screens */
+@media (min-width: 1200px){
+  .features{ max-width: 1100px; }
+}
+
+/* Teaser card spacing (if you added the “Start the Tour” card) */
+.card h2{ margin-top: 0; }
