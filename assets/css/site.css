@@ -77,18 +77,14 @@ input[type=checkbox] { transform: scale(1.2); margin-right: 0.5rem; }
   border-bottom: 1px solid var(--border);
 }
 
-/* Semi-transparent overlay above the image for readability */
 .hero::before {
   content: "";
   position: absolute;
   inset: 0;
-  /* soft white veil; tweak 0.60–0.80 to taste */
-  background: rgba(255, 255, 255, 0.68);
-  /* optional glassy feel; safe in modern browsers */
-  backdrop-filter: blur(4px) saturate(120%);
-  -webkit-backdrop-filter: blur(4px) saturate(120%);
-  z-index: 0;
+  background: rgba(255, 255, 255, 0.4); /* just a soft tint */
+  z-index: 0; /* no blur here, background stays sharp */
 }
+
 
 /* Gentle vignette to keep edges calm (you had this as ::after — preserved) */
 .hero::after {
@@ -188,12 +184,11 @@ input[type=checkbox] { transform: scale(1.2); margin-right: 0.5rem; }
   .tour-step.invert .tour-image { order: 2; }
 }
 
-/* === Glass panel for readable hero text === */
-.hero-panel{
-  background: rgba(255,255,255,0.78);
-  backdrop-filter: blur(6px) saturate(120%);
-  -webkit-backdrop-filter: blur(6px) saturate(120%);
-  border: 1px solid rgba(229,231,235,0.9);
+.hero-panel {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(8px) saturate(120%);
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
+  border: 1px solid rgba(229, 231, 235, 0.9);
   border-radius: 28px;
   padding: clamp(20px, 3vw, 36px);
   box-shadow: 0 10px 28px rgba(0,0,0,.08);
