@@ -175,3 +175,58 @@ input[type=checkbox]{transform:scale(1.1);margin-right:8px}
 
 /* Teaser card spacing (if you added the “Start the Tour” card) */
 .card h2{ margin-top: 0; }
+/* === Production-grade hero polish === */
+/* Stickier, glassy nav for a premium feel */
+.nav{
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(255,255,255,.86);
+  backdrop-filter: saturate(160%) blur(8px);
+  border-bottom: 1px solid #eaeaea;
+}
+
+/* Hero: image + gradient layers + comfortable height */
+.hero{
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.85) 0%, rgba(255,255,255,.70) 45%, rgba(255,255,255,.85) 100%),
+    url('/assets/img/hero-feature.webp') center/cover no-repeat;
+  min-height: 60vh;
+  padding: clamp(56px, 8vw, 96px) 20px;
+  position: relative;
+  border-bottom: 1px solid #eee;
+}
+.hero::after{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  /* soft vignette so text pops */
+  background: radial-gradient(ellipse at center, rgba(0,0,0,0) 40%, rgba(0,0,0,.06) 100%);
+}
+.hero .hero-content{ max-width: 860px; margin: 0 auto; text-align: center; }
+.hero h1{ font-size: clamp(2rem, 4vw, 3rem); margin: 0 0 12px; }
+.hero-subtitle{ font-size: 1.1rem; margin: 0 0 22px; }
+
+/* One primary CTA + a quiet secondary link (no second big button) */
+.hero-actions{
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+}
+.hero-actions .btn{ min-width: 220px; }
+
+/* Subtle secondary link styling */
+.subtle-link{
+  display: inline-flex; align-items: center; gap: .45rem;
+  font-size: .95rem; color: var(--muted);
+  text-decoration: underline; text-underline-offset: 3px;
+}
+.subtle-link:hover{ color: var(--fg); }
+
+/* Button polish already present, keep but ensure icon plays nice */
+.btn{ display:inline-flex; align-items:center; gap:.5rem; }
+.btn .icon{ width:18px; height:18px; fill: currentColor; }
+
+/* Stronger overlay on very small screens for readability */
+@media (max-width: 640px){
+  .hero{
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.92) 0%, rgba(255,255,255,.80) 55%, rgba(255,255,255,.92) 100%),
+      url('/assets/img/hero-feature.webp') center/cover no-repeat;
+    min-height: 56vh;
+  }
+}
