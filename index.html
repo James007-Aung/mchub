@@ -1,87 +1,70 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>MC Hub – Myanmar Community Hub</title>
-    <link rel="stylesheet" href="/assets/css/site.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Myanmar Community Hub: Connect, discover, and book services all in one place.">
+    <title>Myanmar Community Hub</title>
+    <link rel="stylesheet" href="site.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Add a favicon if you have one: <link rel="icon" href="/favicon.ico"> -->
 </head>
 <body>
-
-<!-- NAVBAR (sticky, simple) -->
-<div class="nav">
+<header class="nav">
     <div class="container">
-        <a class="brand" href="/">MC Hub</a>
+        <a href="/" class="brand">MC Hub</a>
         <nav>
-            <a href="/" data-path="/">Home</a>
-            <a href="/about.html" data-path="/about.html">About</a>
-            <a href="/tour.html" data-path="/tour.html">What It Does</a>
-            <a href="/store.html" data-path="/store.html">App Store</a>
-            <a href="/policies.html" data-path="/policies.html">Policies & Terms</a>
-            <a href="/delete/" data-path="/delete">Delete Account</a>
+            <a href="#" class="active">Home</a>
+            <a href="#">About</a>
+            <a href="#">What It Does</a>
+            <a href="#">App Store</a>
+            <a href="#">Policies & Terms</a>
+            <a href="#">Delete Account</a>
         </nav>
-    </div>
-</div>
-
-<!-- HERO (left-aligned on desktop, centered on mobile) -->
-<header class="hero">
-    <div class="container hero-grid">
-        <div class="hero-content">
-            <h1>Myanmar Community Hub</h1>
-            <p class="muted hero-subtitle">
-                Connect • Discover • Book Services — all in one place
-            </p>
-
-            <div class="hero-actions">
-                <a class="btn primary" href="/store.html">
-                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2h10a2 2 0 0 1 2 2v16l-5-3-5 3V4a2 2 0 0 1 2-2z"/></svg>
-                    Get the App
-                </a>
-                <a class="subtle-link" href="/policies.html#user-policy">
-                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v2H6V4zm0 4h12v2H6V8zm0 4h8v2H6v-2zm0 4h8v2H6v-2z"/></svg>
-                    Read User Policy
-                </a>
-            </div>
-        </div>
     </div>
 </header>
 
-<!-- FEATURE CARDS -->
-<main class="container features">
-    <div class="feature-card">
-        <div class="feature-icon">🛒</div>
-        <h3>Book Services</h3>
-        <p>Visa application, extension, VIP services, airport pickup — all from your phone.</p>
-    </div>
+<main>
+    <section class="hero">
+        <div class="container hero-content">
+            <h1>Myanmar Community Hub</h1>
+            <p class="hero-subtitle">Connect • Discover • Book Services — all in one place</p>
+            <div class="hero-actions">
+                <a href="#" class="btn primary">Get the App</a>
+                <a href="#" class="subtle-link">Read User Policy</a>
+            </div>
+        </div>
+    </section>
 
-    <div class="feature-card">
-        <div class="feature-icon">📍</div>
-        <h3>Nearby Places</h3>
-        <p>Find Myanmar restaurants, shops, clinics, and embassies near you — with one tap.</p>
-    </div>
+    <section class="features container">
+        <div class="feature-card">
+            <div class="feature-icon">🛒</div>
+            <h3>Book Services</h3>
+            <p>Visa application, extension, VIP services, airport pickup — all from your phone.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📍</div>
+            <h3>Nearby Places</h3>
+            <p>Find Myanmar restaurants, shops, clinics, and embassies near you — with one tap.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">💬</div>
+            <h3>Community Chat</h3>
+            <p>Connect with others, post free ads, and grow your network in a safe environment.</p>
+        </div>
+    </section>
 
-    <div class="feature-card">
-        <div class="feature-icon">💬</div>
-        <h3>Community Chat</h3>
-        <p>Connect with others, post free ads, and grow your network in a safe environment.</p>
-    </div>
-
-    <!-- Tour teaser -->
-    <div class="card" style="text-align:center; margin-top:32px;">
+    <section class="tour container">
         <h2>See MC Hub in Action</h2>
-        <p class="muted">Take a quick visual tour to see how MC Hub helps you book services, find nearby places, and connect with the community.</p>
-        <p><a class="btn primary" href="/tour.html">🚀 Start the Tour</a></p>
-    </div>
+        <p>Take a quick visual tour to see how MC Hub helps you book services, find nearby places, and connect with the community.</p>
+        <a href="#" class="btn primary">🚀 Start the Tour</a>
+    </section>
 </main>
 
-<!-- FOOTER -->
-<div class="footer">
-    <div class="container">
-        <p class="muted">© <span id="y"></span> MC Hub. All rights reserved.</p>
-        <script>document.getElementById('y').textContent = new Date().getFullYear();</script>
-    </div>
-</div>
-
-<script src="/assets/js/site.js"></script>
+<footer class="footer container">
+    <p>&copy; 2025 MC Hub. All rights reserved.</p>
+</footer>
 </body>
 </html>
