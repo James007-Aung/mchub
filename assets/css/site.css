@@ -88,3 +88,28 @@ input[type=checkbox]{transform:scale(1.1);margin-right:8px}
   z-index: 1;
 }
 /* END: Hero Background Image Enhancement */
+/* --- Walkthrough / Tour page --- */
+.tour { margin: 40px auto; display: grid; gap: 28px; }
+.tour-step { display: grid; gap: 18px; align-items: center; grid-template-columns: 1.1fr 1fr; }
+.tour-step.invert { grid-template-columns: 1fr 1.1fr; }
+.tour-step.invert .tour-text { order: 2; }
+.tour-step.invert .tour-image { order: 1; }
+
+.tour-text h2 { margin: 0 0 8px; }
+.tour-text p { margin: 0; }
+
+.tour-image img { width: 100%; height: auto; border-radius: 20px; display: block; }
+
+/* simple “phone” look without heavy assets */
+.phone-frame { padding: 10px; border-radius: 28px; background: linear-gradient(180deg, #f8fafc, #eef2f7); box-shadow: inset 0 0 0 2px #e5e7eb, 0 8px 20px rgba(0,0,0,0.06); }
+
+/* CTA card at bottom */
+.tour-cta { text-align: center; padding: 28px; }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .tour-step,
+  .tour-step.invert { grid-template-columns: 1fr; }
+  .tour-step.invert .tour-text { order: 1; }
+  .tour-step.invert .tour-image { order: 2; }
+}
