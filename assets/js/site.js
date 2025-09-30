@@ -39,17 +39,7 @@ async function submitDeleteRequest(e) {
     errBox.style.display = 'block';
   }
 }
-// START ANCHOR: Hamburger JS
-document.addEventListener("DOMContentLoaded", () => {
-  const toggle = document.querySelector(".nav-toggle");
-  const links = document.querySelector(".nav-links");
-  if (toggle && links) {
-    toggle.addEventListener("click", () => {
-      links.classList.toggle("active");
-    });
-  }
-});
-// END ANCHOR: Hamburger JS
+
 /* START ANCHOR: Header Inject + Hamburger */
 (function () {
   const mount = document.getElementById("site-header");
@@ -87,3 +77,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 })();
 /* END ANCHOR: Header Inject + Hamburger */
+// START ANCHOR: Scroll Down JS
+document.addEventListener("DOMContentLoaded", () => {
+  const scrollBtn = document.querySelector(".scroll-down");
+  if (scrollBtn) {
+    scrollBtn.addEventListener("click", () => {
+      const hero = document.querySelector(".hero");
+      if (hero && hero.nextElementSibling) {
+        hero.nextElementSibling.scrollIntoView({ behavior: "smooth" });
+      }
+    });
+  }
+});
+// END ANCHOR: Scroll Down JS
