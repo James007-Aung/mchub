@@ -90,8 +90,8 @@ input[type=checkbox] { transform: scale(1.2); margin-right: 0.5rem; }
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
 
-  /* background image */
-  background: #f4f7fb url('/assets/img/hero-feature.webp') 65% center / cover no-repeat;
+  /* full image, no crop */
+  background: #f4f7fb url('/assets/img/hero-feature.webp') center center / contain no-repeat;
 
   /* consistent hero height across devices */
   min-height: clamp(520px, 70svh, 880px);
@@ -111,11 +111,10 @@ input[type=checkbox] { transform: scale(1.2); margin-right: 0.5rem; }
   inset: 0;
   background: linear-gradient(
     90deg,
-    rgba(255,255,255,0.92) 0%,
-    rgba(255,255,255,0.72) 22%,
-    rgba(255,255,255,0.36) 45%,
-    rgba(255,255,255,0.10) 60%,
-    rgba(255,255,255,0.00) 72%
+    rgba(255,255,255,0.75) 0%,
+    rgba(255,255,255,0.55) 25%,
+    rgba(255,255,255,0.25) 50%,
+    rgba(255,255,255,0.00) 70%
   );
   pointer-events: none;
   z-index: 0;
@@ -176,7 +175,9 @@ input[type=checkbox] { transform: scale(1.2); margin-right: 0.5rem; }
   font-size: clamp(1rem, 2.2vw, 1.25rem);
   line-height: 1.45;
   margin: 0 0 1.25rem;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.25); /* subtle contrast */
 }
+
 
 .hero-cta {
   display: flex;
@@ -209,9 +210,15 @@ input[type=checkbox] { transform: scale(1.2); margin-right: 0.5rem; }
     padding: clamp(16px, 6vw, 28px) 16px;
   }
 
-  /* On phones, a simple soft tint reads better than a directional gradient */
+  /* Same gradient as desktop (so subtitle + image balance is consistent) */
   .hero::before {
-    background: rgba(255,255,255,0.78);
+    background: linear-gradient(
+      90deg,
+      rgba(255,255,255,0.75) 0%,
+      rgba(255,255,255,0.55) 25%,
+      rgba(255,255,255,0.25) 50%,
+      rgba(255,255,255,0.00) 70%
+    );
   }
 
   .hero > .container { justify-content: center; }
