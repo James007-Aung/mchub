@@ -16,14 +16,18 @@
     <div class="container">
         <a class="brand" href="/">MC Hub</a>
 
-        <!-- Hamburger button (visible on mobile) -->
+        <!-- Desktop-only: keep Features visible -->
+        <nav class="nav-desktop">
+            <a href="/tour.html" data-path="/tour.html">Features</a>
+        </nav>
+
+        <!-- Hamburger button -->
         <button class="nav-toggle" aria-label="Toggle menu">☰</button>
 
-        <!-- Navigation links -->
+        <!-- Hamburger menu content -->
         <nav class="nav-links">
             <a href="/" data-path="/">Home</a>
             <a href="/about.html" data-path="/about.html">About</a>
-            <a href="/tour.html" data-path="/tour.html">Features</a>
             <a href="/store.html" data-path="/store.html">App Store</a>
             <a href="/policies.html" data-path="/policies.html">Policies & Terms</a>
             <a href="/delete/" data-path="/delete">Delete Account</a>
@@ -31,6 +35,7 @@
     </div>
 </div>
 <!-- END ANCHOR: NAVBAR -->
+
 
 
 <!-- HERO (left-aligned on desktop, centered on mobile) -->
