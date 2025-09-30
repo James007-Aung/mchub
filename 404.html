@@ -1,10 +1,30 @@
-<!doctype html><html lang="en"><head>
-    <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Not found – MC Hub</title>
     <link rel="stylesheet" href="/assets/css/site.css">
-</head><body>
-<main class="container hero">
+</head>
+<body>
+
+<!-- START ANCHOR: HEADER MOUNT -->
+<div id="site-header"></div>
+<!-- END ANCHOR: HEADER MOUNT -->
+
+<main class="container hero" style="text-align:center; padding:4rem 1rem;">
     <h1>404</h1>
     <p class="muted">That page doesn’t exist. <a href="/">Go home</a>.</p>
 </main>
-</body></html>
+
+<!-- FOOTER -->
+<div class="footer">
+    <div class="container">
+        <p class="muted">© <span id="y"></span> MC Hub. All rights reserved.</p>
+        <script>document.getElementById('y').textContent = new Date().getFullYear();</script>
+    </div>
+</div>
+
+<script src="/assets/js/site.js"></script>
+</body>
+</html>
