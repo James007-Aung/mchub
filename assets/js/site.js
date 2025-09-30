@@ -50,3 +50,40 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 // END ANCHOR: Hamburger JS
+/* START ANCHOR: Header Inject + Hamburger */
+(function () {
+  const mount = document.getElementById("site-header");
+  if (!mount) return;
+
+  fetch("/partials/header.html", { cache: "no-store" })
+    .then(res => res.text())
+    .then(html => {
+      mount.innerHTML = html;
+
+      // Hamburger toggle
+      const toggle = mount.querySelector(".nav-toggle");
+      const links  = mount.querySelector(".nav-links");
+      if (toggle && links) {
+        toggle.addEventListener("click", () => {
+          links.classList.toggle("active");
+        });
+        // Close on outside click (desktop & mobile)
+        document.addEventListener("click", (e) => {
+          if (!mount.contains(e.target) && links.classList.contains("active")) {
+            links.classList.remove("active");
+          }
+        });
+      }
+
+      // Active link highlighting using data-path
+      const here = location.pathname.replace(/\/+$/, "") || "/";
+      mount.querySelectorAll("[data-path]").forEach(a => {
+        const want = a.getAttribute("data-path");
+        if (want === here) a.classList.add("active");
+      });
+    })
+    .catch(() => {
+      // Fallback: if partial fails to load, do nothing (page still works)
+    });
+})();
+/* END ANCHOR: Header Inject + Hamburger */
