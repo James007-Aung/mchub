@@ -270,6 +270,24 @@ input[type=checkbox] { transform: scale(1.2); margin-right: 0.5rem; }
   .tour-step.invert .tour-text { order: 1; }
   .tour-step.invert .tour-image { order: 2; }
 }
+/* START ANCHOR: two-up layout */
+.tour-image.two-up {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap; /* ensures side-by-side on desktop, stacked on small screens */
+}
+.tour-image.two-up img {
+  max-width: 45%;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+@media (max-width: 700px) {
+  .tour-image.two-up img {
+    max-width: 100%; /* stack vertically on small screens */
+  }
+}
+/* END ANCHOR: two-up layout */
 
 /* START ANCHOR: Hybrid Hamburger Nav (fixed) */
 .nav .container {
