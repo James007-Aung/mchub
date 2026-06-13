@@ -50,6 +50,8 @@ input[type=checkbox] { transform: scale(1.2); margin-right: 0.5rem; }
 .nav a.active { color: var(--brand); }
 .nav a:hover { color: var(--brand); }
 .footer { border-top: 1px solid var(--border); margin-top: 3rem; padding: 2rem 0; text-align: center; font-size: 0.875rem; }
+.footer p { margin: 0.25rem auto; max-width: 700px; line-height: 1.55; }
+.footer p + p { margin-top: 0.5rem; }
 
 /* ===== Buttons (unified) ===== */
 .btn {
