@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /paypal/
+Disallow: /partials/
+
+Sitemap: https://www.mymchub.com/sitemap.xml

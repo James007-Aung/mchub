@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="my">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>
+    // Pick the language before anything paints: ?lang=en|my, then last choice, else Burmese.
+    (function () {
+      var l = new URLSearchParams(location.search).get("lang");
+      if (l !== "en" && l !== "my") { try { l = localStorage.getItem("mchub_lang"); } catch (e) { l = null; } }
+      document.documentElement.setAttribute("lang", l === "en" ? "en" : "my");
+    })();
+  </script>
+  <title>MC Hub – အခမဲ့ ငလျင်၊ ရေကြီး သတိပေးချက်နှင့် မြန်မာသတင်း</title>
+  <meta name="description" content="မိသားစုရှိရာ မြန်မာပြည်နှင့် သင့်အနီးတွင် ငလျင်၊ ရေကြီးမှု၊ မုန်တိုင်း ဖြစ်ပါက အခမဲ့ အသိပေးပါမည်။ Free earthquake, flood and cyclone alerts, Myanmar news and Burmese places near you." />
+  <link rel="canonical" href="https://www.mymchub.com/get/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.mymchub.com/get/" />
+  <meta property="og:title" content="MC Hub – အခမဲ့ ငလျင်၊ ရေကြီး သတိပေးချက်" />
+  <meta property="og:description" content="မိသားစုရှိရာ ဒေသအတွက် သဘာဝဘေး သတိပေးချက်၊ မြန်မာသတင်း၊ အနီးနားရှိ မြန်မာဆိုင်များ — အက်ပ်တစ်ခုတည်းမှာ။" />
+  <meta property="og:image" content="https://www.mymchub.com/assets/img/hero-feature.webp" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+Myanmar:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/site.css" />
+  <link rel="stylesheet" href="/assets/css/get.css" />
+</head>
+<body>
+
+<div class="lp-bar">
+  <div class="container lp">
+    <a class="brand" href="/">MC Hub</a>
+    <button class="lang-btn" id="lang-toggle" type="button" aria-label="Change language">
+      <span class="my">English</span><span class="en">မြန်မာ</span>
+    </button>
+  </div>
+</div>
+
+<main class="lp">
+
+  <!-- HERO -->
+  <section class="lp-hero">
+    <div>
+      <span class="eyebrow">
+        <span class="my">အခမဲ့ · အကောင့်ဖွင့်ရန် မလိုပါ</span>
+        <span class="en">Free · No account needed</span>
+      </span>
+      <h1>
+        <span class="my">ငလျင်၊ ရေကြီး၊ မုန်တိုင်း — မိသားစုရှိရာ ဒေသအတွက် အခမဲ့ သတိပေးချက်</span>
+        <span class="en">Free earthquake, flood and cyclone alerts for where your family lives</span>
+      </h1>
+      <p class="lead">
+        <span class="my">မြန်မာပြည်ရှိ ဇာတိနှင့် သင်ယခုနေထိုင်ရာ အနီးတွင် သဘာဝဘေး ဖြစ်ပါက ချက်ချင်း အသိပေးပါမည်။ မြန်မာသတင်း၊ အနီးနားရှိ မြန်မာဆိုင်များနှင့် မြန်မာများကိုလည်း အက်ပ်တစ်ခုတည်းမှာ တွေ့နိုင်ပါသည်။</span>
+        <span class="en">Get alerted when disaster strikes your hometown in Myanmar or near where you live now. Myanmar news, Burmese shops and Myanmar people near you, all in one app.</span>
+      </p>
+      <a class="play-btn" data-play="hero" href="https://play.google.com/store/apps/details?id=com.mchub.app">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M5 3.5v17a1 1 0 0 0 1.5.86l14-8.5a1 1 0 0 0 0-1.72l-14-8.5A1 1 0 0 0 5 3.5z"/></svg>
+        <span>
+          <small><span class="my">Android အတွက်</span><span class="en">For Android</span></small>
+          <span class="my">Google Play မှ အခမဲ့ ရယူပါ</span>
+          <span class="en">Get it free on Google Play</span>
+        </span>
+      </a>
+      <p class="cta-note">
+        <span class="my">မြန်မာ / English ဘာသာ နှစ်မျိုးလုံး ရပါသည်။</span>
+        <span class="en">Available in Burmese and English.</span>
+      </p>
+
+      <div class="ios-note" role="note">
+        <span class="my">iPhone ဗားရှင်း မကြာမီ ရောက်ပါမည်။ Android ဖုန်းသုံးသော မိသားစု၊ သူငယ်ချင်းများထံ ဤလင့်ခ်ကို မျှဝေပေးပါ။</span>
+        <span class="en">The iPhone version is coming soon. Share this link with family and friends who use Android.</span>
+        <br>
+        <button type="button" id="ios-share">
+          <span class="my">လင့်ခ် မျှဝေရန်</span><span class="en">Share link</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="mock" aria-hidden="true">
+      <p class="mock-label"><span class="my">ဥပမာ အသိပေးချက်</span><span class="en">Example notifications</span></p>
+      <div class="notif">
+        <div class="dot">🌏</div>
+        <div>
+          <b><span class="my">ငလျင် သတိပေးချက် · မန္တလေး အနီး</span><span class="en">Earthquake alert · near Mandalay</span></b>
+          <p><span class="my">ပြင်းအား ၅.၆ · ယခုလေးတင်</span><span class="en">Magnitude 5.6 · just now</span></p>
+        </div>
+      </div>
+      <div class="notif">
+        <div class="dot">🌊</div>
+        <div>
+          <b><span class="my">ရေကြီးမှု သတိပေးချက် · သင့်အနီး</span><span class="en">Flood alert · near you</span></b>
+          <p><span class="my">ဘေးကင်းသော နေရာသို့ ပြင်ဆင်ထားပါ</span><span class="en">Be ready to move to safety</span></p>
+        </div>
+      </div>
+      <div class="notif news">
+        <div class="dot">📰</div>
+        <div>
+          <b><span class="my">ယနေ့ မြန်မာသတင်း အနှစ်ချုပ်</span><span class="en">Today's Myanmar news digest</span></b>
+          <p><span class="my">မနက် ၈ နာရီ</span><span class="en">8:00 AM</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="lp-section">
+    <h2><span class="my">MC Hub မှာ ဘာတွေရှိလဲ</span><span class="en">What's in MC Hub</span></h2>
+    <div class="lp-grid">
+      <div class="lp-card">
+        <div class="ico">🌏</div>
+        <h3><span class="my">အခမဲ့ သဘာဝဘေး သတိပေးချက်</span><span class="en">Free disaster alerts</span></h3>
+        <p><span class="my">သင်နေထိုင်ရာ အနီးနှင့် မြန်မာပြည်ရှိ ဇာတိတွင် ငလျင်၊ ရေကြီးမှု၊ မုန်တိုင်း ဖြစ်ပါက အသိပေးပါမည်။ ကမ္ဘာ့ မည်သည့်နေရာမဆို အလုပ်လုပ်ပါသည်။</span><span class="en">Earthquakes, floods and cyclones near you and in your hometown in Myanmar. Works anywhere in the world.</span></p>
+      </div>
+      <div class="lp-card">
+        <div class="ico">📰</div>
+        <h3><span class="my">မြန်မာသတင်းများ</span><span class="en">Myanmar news</span></h3>
+        <p><span class="my">မြန်မာသတင်း မီဒီယာတွေက နောက်ဆုံးရ ထိပ်တန်းသတင်းတွေကို တစ်နေရာတည်းမှာ ဖတ်ပါ။</span><span class="en">The latest top stories from Myanmar news media, in one place.</span></p>
+      </div>
+      <div class="lp-card">
+        <div class="ico">📍</div>
+        <h3><span class="my">အနီးနားရှိ မြန်မာဆိုင်များ</span><span class="en">Burmese places near you</span></h3>
+        <p><span class="my">မြန်မာစားသောက်ဆိုင်၊ ဆိုင်များ၊ ဆေးခန်းနှင့် သံရုံးများကို မြေပုံပေါ်တွင် ရှာပါ။</span><span class="en">Find Myanmar restaurants, shops, clinics and embassies on the map.</span></p>
+      </div>
+      <div class="lp-card">
+        <div class="ico">💬</div>
+        <h3><span class="my">အနီးနားရှိ မြန်မာများနှင့် တွေ့ဆုံပါ</span><span class="en">Meet Myanmar people nearby</span></h3>
+        <p><span class="my">စကားပြောပြီး ကွန်ရက်ချဲ့ပါ။ သင့်ဖုန်းနံပါတ်ကို အခြားသူများ မမြင်ရပါ။</span><span class="en">Chat and grow your network. Others never see your phone number.</span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="lp-section">
+    <h2><span class="my">တစ်မိနစ်အတွင်း စတင်ပါ</span><span class="en">Set up in a minute</span></h2>
+    <ol class="steps">
+      <li><span class="my">Google Play မှ MC Hub ကို အခမဲ့ ထည့်သွင်းပါ။</span><span class="en">Install MC Hub free from Google Play.</span></li>
+      <li><span class="my">မိသားစု နေထိုင်ရာ ပြည်နယ်/တိုင်းကို ရွေးပါ။</span><span class="en">Choose the state or region where your family lives.</span></li>
+      <li><span class="my">ငလျင်၊ ရေကြီးမှု ဖြစ်တိုင်း အသိပေးချက် ရယူပါ။ နေ့စဉ် မြန်မာသတင်းကိုလည်း ဖတ်ပါ။</span><span class="en">Get notified whenever there's an earthquake or flood, and read Myanmar news every day.</span></li>
+    </ol>
+  </section>
+
+  <!-- PRIVACY -->
+  <section class="lp-section">
+    <h2><span class="my">သင့်ကိုယ်ရေးအချက်အလက် လုံခြုံပါသည်</span><span class="en">Your privacy comes first</span></h2>
+    <div class="trust">
+      <div><span><span class="my">သတိပေးချက်များအတွက် သင့်ဒေသကို ခန့်မှန်းခြေသာ သုံးပြီး တည်နေရာကို သိမ်းဆည်းမထားပါ။</span><span class="en">Alerts use only your rough area. Your location is not saved.</span></span></div>
+      <div><span><span class="my">အနီးနားတွင် သင့်တည်နေရာ အတိအကျကို မပြပါ (၁ ကီလိုမီတာခန့်သာ)။</span><span class="en">Nearby never shows your exact spot, only an area of about 1 km.</span></span></div>
+      <div><span><span class="my">သင့်ဖုန်းနံပါတ်ကို အခြားသူများ မမြင်ရပါ။ အကောင့်ကို အချိန်မရွေး ဖျက်နိုင်ပါသည်။</span><span class="en">Others never see your phone number. Delete your account any time.</span></span></div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="lp-final">
+    <h2><span class="my">မိသားစုအတွက် ယနေ့ပဲ သတိပေးချက် ဖွင့်ထားပါ</span><span class="en">Turn on alerts for your family today</span></h2>
+    <a class="play-btn" data-play="footer" href="https://play.google.com/store/apps/details?id=com.mchub.app">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M5 3.5v17a1 1 0 0 0 1.5.86l14-8.5a1 1 0 0 0 0-1.72l-14-8.5A1 1 0 0 0 5 3.5z"/></svg>
+      <span>
+        <small><span class="my">Android အတွက်</span><span class="en">For Android</span></small>
+        <span class="my">Google Play မှ အခမဲ့ ရယူပါ</span>
+        <span class="en">Get it free on Google Play</span>
+      </span>
+    </a>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <p class="muted"><a href="/privacy.html">Privacy</a> · <a href="/policies.html">Policies &amp; Terms</a> · <a href="/">mymchub.com</a></p>
+    <p class="muted">MC Hub is operated by MC Square Ltd, a company registered in England and Wales (company number 17274095). Registered office: 71-75 Shelton Street, Covent Garden, London, WC2H 9JQ, United Kingdom.</p>
+    <p class="muted">© 2026 MC Square Ltd. All rights reserved.</p>
+  </div>
+</footer>
+
+<!-- Cookie consent: only shown when a tracker ID is set in /assets/js/config.js -->
+<div class="consent" id="consent" hidden role="dialog" aria-label="Cookie consent">
+  <p>
+    <span class="my">ကြော်ငြာများ အလုပ်ဖြစ်မဖြစ် တိုင်းတာရန် cookies သုံးလိုပါသည်။ ငြင်းပယ်လည်း ဝဘ်ဆိုက်ကို ပုံမှန်အတိုင်း သုံးနိုင်ပါသည်။ <a href="/privacy.html#website">အသေးစိတ်</a></span>
+    <span class="en">We'd like to use cookies to measure how well our ads work. If you say no, the site works just the same. <a href="/privacy.html#website">Details</a></span>
+  </p>
+  <div class="row">
+    <button type="button" data-consent="decline"><span class="my">ငြင်းပယ်သည်</span><span class="en">No thanks</span></button>
+    <button type="button" data-consent="accept"><span class="my">လက်ခံသည်</span><span class="en">Accept</span></button>
+  </div>
+</div>
+
+<script src="/assets/js/config.js"></script>
+<script src="/assets/js/acq.js"></script>
+</body>
+</html>
